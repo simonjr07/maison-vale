@@ -1,6 +1,6 @@
 # Maison Vale
 
-Maison Vale is a fictional premium lifestyle e-commerce portfolio application. The repository includes the project foundation, PostgreSQL/Prisma data layer, administrative authentication, and a public product catalogue.
+Maison Vale is a fictional premium lifestyle e-commerce portfolio application. The repository includes the project foundation, PostgreSQL/Prisma data layer, administrative authentication, public catalogue, guest cart, and checkout foundation.
 
 ## Current foundation
 
@@ -19,7 +19,8 @@ Maison Vale is a fictional premium lifestyle e-commerce portfolio application. T
 - Variant-level inventory authority with validated, concurrency-safe stock mutations
 - Transactional inventory movement history for restocks, corrections, and future order activity
 - Versioned browser-persisted guest cart with authoritative server-side price and availability resolution
-- No public registration, checkout, payment, order creation, or operational admin modules yet
+- U.S.-only guest checkout validation with authoritative shipping, tax, and final totals
+- No public registration, payment processing, order creation, or operational admin modules yet
 
 ## Local development
 
@@ -44,6 +45,7 @@ npm run test
 npm run test:catalogue:integration
 npm run test:inventory:integration
 npm run test:cart:integration
+npm run test:checkout:integration
 npm run build
 npm run db:status
 git diff --check
@@ -65,4 +67,4 @@ The planned implementation sequence is documented in [`docs/TASKS.md`](./docs/TA
 
 ## Engineering notes
 
-This project does not claim unfinished functionality. Future commerce work must preserve server-side authority over totals, inventory, authentication, authorization, and payment events. See [`AGENTS.md`](./AGENTS.md) for the working rules.
+Checkout currently validates guest details and prepares an authoritative summary only. It does not collect payment, create orders, reserve stock, or decrement inventory. Future commerce work must preserve server-side authority over totals, inventory, authentication, authorization, and payment events. See [`AGENTS.md`](./AGENTS.md) for the working rules.

@@ -79,6 +79,11 @@ export function CartView() {
     announce("Item removed from your cart.");
   }
 
+  const checkoutReady =
+    resolved !== null &&
+    resolved.items.length > 0 &&
+    resolved.items.every((item) => item.status === "AVAILABLE");
+
   if (!hydrated || (loading && !resolved)) {
     return (
       <div aria-live="polite" className="py-20 text-center text-sm text-[#20211d]/60">
@@ -233,11 +238,20 @@ export function CartView() {
         </div>
         <p className="mt-4 text-xs leading-5 text-[#20211d]/55">
           Current prices are shown in USD. Stock is not reserved and will be
-          checked again when checkout is introduced.
+          checked again at checkout.
         </p>
-        <p className="mt-6 border-t border-[#20211d]/10 pt-5 text-sm leading-6 text-[#20211d]/65">
-          Checkout is not available in this project phase.
-        </p>
+        {checkoutReady ? (
+          <Link
+            className="mt-6 flex min-h-12 items-center justify-center bg-[#20211d] px-6 text-sm font-medium text-white hover:bg-[#34463b]"
+            href="/checkout"
+          >
+            Continue to checkout
+          </Link>
+        ) : (
+          <p className="mt-6 border-t border-[#20211d]/10 pt-5 text-sm leading-6 text-[#6f432f]">
+            Resolve unavailable or adjusted items before continuing to checkout.
+          </p>
+        )}
       </aside>
     </div>
   );

@@ -14,6 +14,7 @@
     "test:catalogue:integration": "node --experimental-strip-types scripts/verify-catalogue.mjs",
     "test:inventory:integration": "node --experimental-strip-types scripts/verify-inventory.mjs",
     "test:cart:integration": "node --experimental-strip-types scripts/verify-cart.mjs",
+    "test:checkout:integration": "node --experimental-strip-types scripts/verify-checkout.mjs",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:status": "prisma migrate status",

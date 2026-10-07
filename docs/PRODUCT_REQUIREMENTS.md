@@ -37,4 +37,6 @@ TASK-005 makes variant stock authoritative through validated server-side mutatio
 
 TASK-006 provides a browser-persisted guest cart, variant selection, quantity updates, removal, current server-resolved pricing, and clear stale-item handling. The cart is a convenience layer: it stores no authoritative price or stock value and does not reserve inventory.
 
-Checkout, payment, order lookup, and operational catalogue management remain future work.
+TASK-007 provides a U.S.-only guest checkout form and a stateless server preparation boundary. PostgreSQL prices and availability are re-resolved independently from the cart page. Standard shipping is $8 below $150 and free at or above $150; automated tax remains explicitly unavailable and authoritative tax is $0. Validation creates no order, payment, customer profile, reservation, inventory movement, or stored address.
+
+Payment, order creation and lookup, and operational catalogue management remain future work.
