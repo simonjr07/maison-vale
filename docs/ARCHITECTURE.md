@@ -12,6 +12,10 @@ The route-grouped storefront exposes `/`, `/shop`, `/shop/[slug]`, and `/collect
 
 Catalogue pages read PostgreSQL at request time. They intentionally do not use a persistent application cache because stock labels are advisory and should reflect current variant records. React request memoization prevents duplicate product queries between metadata and page rendering. Cart, checkout, payment, and operational admin modules are not implemented.
 
+Variant availability is centralized in the inventory domain and requires an active, published product, an active variant, and positive stock. The catalogue maps that domain result into public labels without exposing quantities. Runtime inventory commands pass through Zod validation and the server-only inventory service. Stock changes and `InventoryMovement` audit rows share a database transaction.
+
+Purchase-style decrements use one conditional PostgreSQL update that includes the required stock quantity and product/variant visibility predicates. This avoids a read-check-write race. Restocks are bounded, while intentional stock-setting uses the previously observed quantity as an optimistic concurrency condition. Future cart code must not reserve stock; future checkout and order processing must call this inventory service rather than update variants directly.
+
 ## Intended shape
 
 ```text
@@ -22,4 +26,4 @@ Stripe → webhook route → verification/idempotency → application → Postgr
 
 UI components should handle presentation and user interaction. Server actions or route handlers should validate input and establish the request boundary. Domain services should own pricing, inventory, order, and payment rules. Persistence adapters should own Prisma/database access. Authentication and authorization must be enforced on the server. Stripe integration should be isolated from general domain logic, and webhook processing must verify signatures and be idempotent.
 
-Runtime database access uses `DATABASE_URL`; migration commands use `DIRECT_URL`. Generated Prisma code is not committed. Domain services, server-action boundaries, and route handlers will be introduced with their respective feature tasks.
+Runtime database access uses `DATABASE_URL`; migration commands use `DIRECT_URL`. Generated Prisma code is not committed. Future server-action boundaries and route handlers will be introduced with their respective feature tasks.

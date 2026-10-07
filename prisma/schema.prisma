@@ -37,6 +37,15 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum InventoryMovementReason {
+  RESTOCK
+  MANUAL_ADJUSTMENT
+  ORDER
+  ORDER_CANCELLATION
+  REFUND
+  CORRECTION
+}
+
 model User {
   id           String   @id @default(uuid()) @db.Uuid
   email        String   @unique @db.VarChar(320)
@@ -95,8 +104,23 @@ model ProductVariant {
   updatedAt           DateTime    @updatedAt @db.Timestamptz(3)
   product             Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   orderItems          OrderItem[]
+  inventoryMovements  InventoryMovement[]
 
   @@index([productId, active])
+}
+
+model InventoryMovement {
+  id               String                  @id @default(uuid()) @db.Uuid
+  productVariantId String                  @db.Uuid
+  quantityDelta    Int
+  reason           InventoryMovementReason
+  referenceType    String?                 @db.VarChar(80)
+  referenceId      String?                 @db.VarChar(120)
+  createdAt        DateTime                @default(now()) @db.Timestamptz(3)
+  productVariant   ProductVariant          @relation(fields: [productVariantId], references: [id], onDelete: Restrict)
+
+  @@index([productVariantId, createdAt])
+  @@index([referenceType, referenceId])
 }
 
 model ProductImage {

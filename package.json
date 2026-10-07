@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:auth:integration": "node --experimental-strip-types scripts/verify-admin-auth.mjs",
     "test:catalogue:integration": "node --experimental-strip-types scripts/verify-catalogue.mjs",
+    "test:inventory:integration": "node --experimental-strip-types scripts/verify-inventory.mjs",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:status": "prisma migrate status",

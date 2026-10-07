@@ -8,6 +8,12 @@ These are preliminary controls, not a compliance or penetration-testing claim.
 
 The initial migration enforces non-negative inventory and monetary values, positive quantities/refunds, and consistent order arithmetic. These checks are a final database boundary, not a replacement for request validation or transactional application logic. The generated client is excluded from source control, and the runtime client is marked server-only to prevent accidental client-component imports.
 
+## Inventory integrity
+
+TASK-005 keeps stock authoritative at `ProductVariant`. Inventory commands are server-only and validated at runtime; individual adjustment quantities and explicit stock levels are capped at 100,000 units. Purchase-style decrements use an atomic conditional update, so concurrent callers cannot both consume the same final unit. PostgreSQL retains the non-negative stock check as a final boundary.
+
+Every successful mutation writes a non-zero `InventoryMovement` in the same transaction. Failed mutations roll back without an audit row. Movement references must be supplied as a complete type/id pair, and existing history prevents variant deletion. Public availability remains advisory and exact quantities are not included in catalogue DTOs.
+
 ## Administrative authentication
 
 TASK-003 implements Auth.js credentials authentication with eight-hour encrypted JWT sessions. Only user id and role are added to the session. Passwords are hashed with bcrypt using 12 rounds; inputs are normalized and validated with Zod; inactive users and invalid credentials receive the same public response. A dummy bcrypt comparison reduces account-existence timing differences.

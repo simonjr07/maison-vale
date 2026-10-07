@@ -1,3 +1,5 @@
+import { getVariantAvailability } from "../inventory/inventory-domain";
+
 export type CatalogueImageRecord = {
   url: string;
   altText: string;
@@ -71,13 +73,6 @@ const usdFormatter = new Intl.NumberFormat("en-US", {
 export function formatUsd(priceCents: number) {
   return usdFormatter.format(priceCents / 100);
 }
-
-export function getVariantAvailability(variant: CatalogueVariantRecord) {
-  if (!variant.active) return "Unavailable" as const;
-  if (variant.stockQuantity <= 0) return "Out of stock" as const;
-  return "In stock" as const;
-}
-
 export function getPriceDisplay(variants: CatalogueVariantRecord[]) {
   const activePrices = variants
     .filter((variant) => variant.active)
@@ -142,16 +137,25 @@ export function findPublishedProductBySlug(
   );
 }
 
-function getProductAvailability(variants: CatalogueVariantRecord[]) {
-  if (variants.length === 0 || variants.every((variant) => !variant.active)) {
+function getProductAvailability(product: CatalogueProductRecord) {
+  if (product.variants.length === 0) {
     return "Unavailable" as const;
   }
 
-  return variants.some(
-    (variant) => variant.active && variant.stockQuantity > 0,
-  )
+  const availability = product.variants.map((variant) =>
+    getVariantAvailability({
+      productActive: product.active,
+      productPublished: product.published,
+      variantActive: variant.active,
+      stockQuantity: variant.stockQuantity,
+    }),
+  );
+
+  return availability.includes("In stock")
     ? ("In stock" as const)
-    : ("Out of stock" as const);
+    : availability.includes("Out of stock")
+      ? ("Out of stock" as const)
+      : ("Unavailable" as const);
 }
 
 export function toProductCardDto(
@@ -165,7 +169,7 @@ export function toProductCardDto(
       slug: product.category.slug,
     },
     price: getPriceDisplay(product.variants),
-    availability: getProductAvailability(product.variants),
+    availability: getProductAvailability(product),
     image: selectPrimaryImage(product.images),
   };
 }
@@ -187,7 +191,12 @@ export function toProductDetailDto(
       size: variant.size,
       color: variant.color,
       price: formatUsd(variant.priceCents),
-      availability: getVariantAvailability(variant),
+      availability: getVariantAvailability({
+        productActive: product.active,
+        productPublished: product.published,
+        variantActive: variant.active,
+        stockQuantity: variant.stockQuantity,
+      }),
     })),
   };
 }
