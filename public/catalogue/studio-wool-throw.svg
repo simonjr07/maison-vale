@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-labelledby="title">
+  <title id="title">Rust wool throw study</title><rect width="800" height="1000" fill="#aea48f"/>
+  <path d="M176 175h448v650H176z" fill="#9e5f45"/>
+  <path d="M210 175v650m58-650v650m58-650v650m58-650v650m58-650v650m58-650v650m58-650v650m58-650v650" stroke="#ba7f63" stroke-width="9"/>
+  <path d="M176 230h448m-448 65h448m-448 65h448m-448 65h448m-448 65h448m-448 65h448m-448 65h448m-448 65h448m-448 65h448" stroke="#794735" stroke-width="5" opacity=".55"/>
+  <path d="M190 825v50m30-50v65m30-65v50m300-50v50m30-50v65m30-65v50" stroke="#9e5f45" stroke-width="8"/>
+</svg>

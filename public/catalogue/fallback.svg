@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-labelledby="title">
+  <title id="title">Maison Vale product placeholder</title>
+  <rect width="800" height="1000" fill="#ddd5c9"/>
+  <circle cx="400" cy="430" r="170" fill="#c5b6a4"/>
+  <path d="M220 690h360" stroke="#8f735e" stroke-width="3"/>
+  <text x="400" y="750" text-anchor="middle" fill="#4c463f" font-family="Arial, sans-serif" font-size="22" letter-spacing="8">MAISON VALE</text>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-labelledby="title">
+  <title id="title">Clay overshirt study</title><rect width="800" height="1000" fill="#d8c7b4"/>
+  <path d="M230 222l118-70h104l118 70 96 165-92 55-35-68v433H261V374l-35 68-92-55z" fill="#9c5f43"/>
+  <path d="M348 152l52 94 52-94M400 246v541" fill="none" stroke="#603d30" stroke-width="9"/>
+  <path d="M300 430h78v115h-78zm122 0h78v115h-78z" fill="none" stroke="#764834" stroke-width="7"/>
+  <g fill="#d7b69b"><circle cx="400" cy="348" r="7"/><circle cx="400" cy="430" r="7"/><circle cx="400" cy="512" r="7"/><circle cx="400" cy="594" r="7"/></g>
+</svg>

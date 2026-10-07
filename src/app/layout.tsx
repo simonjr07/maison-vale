@@ -2,8 +2,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Maison Vale | Foundation",
-  description: "Maison Vale is a premium lifestyle e-commerce portfolio application in development.",
+  title: {
+    default: "Maison Vale",
+    template: "%s | Maison Vale",
+  },
+  description:
+    "Considered apparel and objects designed for daily life by Maison Vale.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

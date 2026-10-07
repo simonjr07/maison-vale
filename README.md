@@ -1,8 +1,6 @@
 # Maison Vale
 
-Maison Vale is a fictional premium lifestyle e-commerce portfolio application. The repository now includes the project foundation, PostgreSQL/Prisma data layer, and verified TASK-003 administrative authentication implementation.
-
-The application is intentionally not a storefront yet. The current page is a minimal foundation screen while the product requirements, architecture, security boundaries, and delivery roadmap are established.
+Maison Vale is a fictional premium lifestyle e-commerce portfolio application. The repository includes the project foundation, PostgreSQL/Prisma data layer, administrative authentication, and a public product catalogue.
 
 ## Current foundation
 
@@ -15,7 +13,10 @@ The application is intentionally not a storefront yet. The current page is a min
 - Auth.js credentials authentication for active ADMIN and STAFF users
 - Protected `/admin` shell with server-side database rechecks and role helpers
 - Database-backed, HMAC-keyed login attempt limiting
-- No public registration, storefront, payment, cart, checkout, or operational admin modules yet
+- Public storefront at `/`, `/shop`, `/shop/[slug]`, and `/collections/[slug]`
+- Server-rendered catalogue queries with active and published visibility rules
+- Honest variant pricing, advisory availability, ordered product images, and safe public DTOs
+- No public registration, cart, checkout, payment, or operational admin modules yet
 
 ## Local development
 
@@ -37,6 +38,7 @@ Useful checks:
 npm run lint
 npm run typecheck
 npm run test
+npm run test:catalogue:integration
 npm run build
 npm run db:status
 git diff --check

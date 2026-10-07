@@ -29,4 +29,8 @@ The UI must be keyboard usable, readable at zoom, provide clear focus and error 
 
 Preliminary order lifecycle: pending payment → paid/fulfillment pending → processing → shipped → fulfilled, with cancelled and refunded paths to be refined. Preliminary payment lifecycle: pending → succeeded, failed, or refunded, with webhook retries and idempotency.
 
-This document describes the intended product, not completed functionality.
+## Implemented catalogue behavior
+
+TASK-004 provides public product and category browsing, product details, ordered images, honest variant pricing, and advisory availability labels. Public visibility requires active and published products in active categories. Availability is not a reservation and must be validated again when checkout is implemented.
+
+Cart, checkout, payment, order lookup, and operational catalogue management remain future work.
