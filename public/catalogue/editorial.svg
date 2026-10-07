@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1200" role="img" aria-labelledby="title">
+  <title id="title">Maison Vale autumn editorial colour study</title>
+  <rect width="1000" height="1200" fill="#596b5d"/>
+  <path d="M0 760L1000 420v780H0z" fill="#aa7358"/>
+  <path d="M120 120h560v800H120z" fill="#d4c5b3" opacity=".82"/>
+  <path d="M240 210h510v730H240z" fill="#26382f" opacity=".88"/>
+  <circle cx="730" cy="300" r="150" fill="#d7b17d"/>
+  <path d="M325 350h340l-52 490H377z" fill="#a4694e"/>
+  <path d="M432 350v-75h126v75" fill="none" stroke="#d4c5b3" stroke-width="24"/>
+</svg>

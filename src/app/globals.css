@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4f1ec;
-  --foreground: #24231f;
+  --background: #f3efe8;
+  --foreground: #20211d;
+  --paper: #faf8f3;
+  --moss: #34463b;
+  --clay: #9a5f42;
 }
 
 @theme inline {
@@ -16,4 +19,18 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+::selection {
+  background: #c9b49d;
+  color: #20211d;
+}
+
+:focus-visible {
+  outline: 2px solid var(--clay);
+  outline-offset: 4px;
+}
+
+html {
+  scroll-padding-top: 6rem;
 }

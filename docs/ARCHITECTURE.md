@@ -2,11 +2,15 @@
 
 ## Current state
 
-The repository contains a Next.js App Router foundation, PostgreSQL/Prisma data layer, and administrative authentication boundary. PostgreSQL 17 runs locally through Docker Compose. Prisma ORM 7 uses a generated client and the PostgreSQL driver adapter; `src/server/db/client.ts` is marked server-only and caches the client during development hot reloads.
+The repository contains a Next.js App Router application, PostgreSQL/Prisma data layer, administrative authentication boundary, and public product catalogue. PostgreSQL 17 runs locally through Docker Compose. Prisma ORM 7 uses a generated client and the PostgreSQL driver adapter; `src/server/db/client.ts` is marked server-only and caches the client during development hot reloads.
 
 Auth.js provides credentials authentication with encrypted JWT sessions. The credentials service validates and normalizes input, consumes a database-backed login-rate bucket, verifies bcrypt hashes, and returns only user id and role. The authorization data-access layer rechecks the current user in PostgreSQL before protected pages or operations proceed.
 
-The `/admin/login` route is public. The route-grouped `/admin` shell is protected without changing its URL. Authentication answers who the user is; reusable role guards separately decide what ADMIN and STAFF users may do. No storefront, payment, cart, checkout, or operational admin modules are implemented.
+The `/admin/login` route is public. The route-grouped `/admin` shell is protected without changing its URL. Authentication answers who the user is; reusable role guards separately decide what ADMIN and STAFF users may do.
+
+The route-grouped storefront exposes `/`, `/shop`, `/shop/[slug]`, and `/collections/[slug]`. UI components call the centralized server-only catalogue data-access module instead of Prisma. Queries select only the fields needed for public presentation, and pure mapping functions produce allow-listed DTOs without database ids, SKUs, raw stock counts, or publication flags. Visibility requires an active, published product in an active category.
+
+Catalogue pages read PostgreSQL at request time. They intentionally do not use a persistent application cache because stock labels are advisory and should reflect current variant records. React request memoization prevents duplicate product queries between metadata and page rendering. Cart, checkout, payment, and operational admin modules are not implemented.
 
 ## Intended shape
 

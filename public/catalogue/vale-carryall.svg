@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-labelledby="title">
+  <title id="title">Natural canvas carryall study</title><rect width="800" height="1000" fill="#6c786c"/>
+  <path d="M145 385h510l48 388H97z" fill="#d8c8a8"/>
+  <path d="M250 430V290c0-88 300-88 300 0v140" fill="none" stroke="#876d4f" stroke-width="35"/>
+  <path d="M135 470h530M260 385v388m280-388v388" fill="none" stroke="#a68f6d" stroke-width="12"/>
+  <rect x="320" y="500" width="160" height="130" fill="none" stroke="#aa916d" stroke-width="9"/>
+</svg>

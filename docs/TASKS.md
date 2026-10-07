@@ -5,7 +5,7 @@
 | TASK-001 | Foundation and documentation | Baseline app, docs, engineering rules | Clean baseline and validation checks pass | Complete |
 | TASK-002 | Database foundation | Prisma, PostgreSQL, initial schema and migrations | Domain model reviewed and local database works | Complete |
 | TASK-003 | Admin authentication and authorization | Protected admin access and roles | Unauthorized access is rejected server-side | Complete |
-| TASK-004 | Product catalogue | Categories, products, images, public browsing | Catalogue data is validated and readable | Planned |
+| TASK-004 | Product catalogue | Categories, products, images, public browsing | Catalogue data is validated and readable | Complete |
 | TASK-005 | Product variants and inventory | Variant selection and inventory rules | Inventory cannot become negative | Planned |
 | TASK-006 | Cart | Guest cart and price calculation | Cart totals are server-authoritative | Planned |
 | TASK-007 | Checkout foundation | Checkout boundary and order draft | Invalid or stale carts fail safely | Planned |

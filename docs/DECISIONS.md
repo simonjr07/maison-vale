@@ -20,6 +20,9 @@
 - Both ADMIN and STAFF may access the base admin shell; ADMIN-only operations require an explicit role guard.
 - Login rate limiting uses database fixed-window buckets keyed by a secret-backed HMAC digest.
 - Administrative users are provisioned only through an explicit local command; public registration is out of scope.
+- Public catalogue routes use request-time PostgreSQL reads rather than a persistent application cache so advisory stock labels do not inherit a revalidation delay.
+- Product images use ordered database records that currently point to repository-owned SVG artwork; upload infrastructure remains deferred.
+- Public catalogue DTOs omit database ids, SKUs, raw stock quantities, and administrative visibility fields.
 
 ## Unresolved
 

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-labelledby="title">
+  <title id="title">Saddle leather cardholder study</title><rect width="800" height="1000" fill="#d6c6b3"/>
+  <rect x="150" y="310" width="500" height="380" rx="20" fill="#9a5d36"/>
+  <path d="M400 310v380M182 425h185M433 425h185M182 530h185M433 530h185" fill="none" stroke="#633b27" stroke-width="9"/>
+  <path d="M170 330h460v340H170z" fill="none" stroke="#d2a077" stroke-width="4" stroke-dasharray="8 11"/>
+</svg>

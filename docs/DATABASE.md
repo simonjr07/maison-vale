@@ -27,7 +27,7 @@ The TASK-003 migration adds a unique HMAC-key/window pair, expiration index, and
 
 ## Seed data
 
-The idempotent development seed creates one StoreSettings record, the Everyday Objects category, the unpublished Vale Carryall product, and two variants. It creates no staff user or credentials.
+The idempotent development seed creates one StoreSettings record, four active categories, eight public products, two hidden visibility fixtures, twenty-two variants, and ordered local product-image records. The catalogue includes in-stock, out-of-stock, unavailable, exact-price, and variable-price examples. It creates no staff user or credentials.
 
 ## Deferred decisions
 
