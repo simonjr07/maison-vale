@@ -13,6 +13,7 @@ The current schema contains:
 - `OrderStatusEvent` for order-history records.
 - `StripeWebhookEvent` as the future webhook idempotency ledger.
 - `StoreSettings` for the store name and V1 currency.
+- `LoginRateLimitBucket` for fixed-window administrative login throttling.
 
 Inventory belongs to `ProductVariant`. Money uses integer cents and V1 currency is constrained to USD. Order addresses are immutable order data rather than reusable customer-address records. The optional order-item relation to a variant may be cleared while the snapshot remains intact.
 
@@ -21,6 +22,8 @@ Inventory belongs to `ProductVariant`. Money uses integer cents and V1 currency 
 Unique constraints protect user email, category and product slugs, SKU, order number, provider payment identity, provider refund identity, and Stripe event identity. Foreign keys define explicit delete behavior and query-oriented indexes cover catalogue, inventory, order, payment, and event access paths.
 
 The initial SQL migration adds checks for non-negative variant prices, stock, order totals, payment amounts, and image sort order; positive quantities and refund amounts; and internally consistent order and line totals. Application transactions will still be required for concurrent inventory changes.
+
+The TASK-003 migration adds a unique HMAC-key/window pair, expiration index, and non-negative attempt constraint for login rate limiting. Buckets intentionally store no raw email address or client address. Expired-bucket cleanup can be introduced as a scheduled maintenance operation before production traffic.
 
 ## Seed data
 

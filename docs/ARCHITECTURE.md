@@ -2,9 +2,11 @@
 
 ## Current state
 
-The repository contains a Next.js App Router foundation and a PostgreSQL/Prisma data layer. PostgreSQL 17 runs locally through Docker Compose. Prisma ORM 7 uses a generated client and the PostgreSQL driver adapter; `src/server/db/client.ts` is marked server-only and caches the client during development hot reloads.
+The repository contains a Next.js App Router foundation, PostgreSQL/Prisma data layer, and administrative authentication boundary. PostgreSQL 17 runs locally through Docker Compose. Prisma ORM 7 uses a generated client and the PostgreSQL driver adapter; `src/server/db/client.ts` is marked server-only and caches the client during development hot reloads.
 
-The database schema and migration exist, but no storefront, authentication, payment, cart, checkout, or admin behavior is implemented.
+Auth.js provides credentials authentication with encrypted JWT sessions. The credentials service validates and normalizes input, consumes a database-backed login-rate bucket, verifies bcrypt hashes, and returns only user id and role. The authorization data-access layer rechecks the current user in PostgreSQL before protected pages or operations proceed.
+
+The `/admin/login` route is public. The route-grouped `/admin` shell is protected without changing its URL. Authentication answers who the user is; reusable role guards separately decide what ADMIN and STAFF users may do. No storefront, payment, cart, checkout, or operational admin modules are implemented.
 
 ## Intended shape
 

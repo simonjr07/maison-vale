@@ -1,6 +1,6 @@
 # Maison Vale
 
-Maison Vale is a fictional premium lifestyle e-commerce portfolio application. The project foundation is complete and TASK-002 has established the PostgreSQL and Prisma data layer; live database validation remains pending on a Docker-enabled machine.
+Maison Vale is a fictional premium lifestyle e-commerce portfolio application. The repository now includes the project foundation, PostgreSQL/Prisma data layer, and verified TASK-003 administrative authentication implementation.
 
 The application is intentionally not a storefront yet. The current page is a minimal foundation screen while the product requirements, architecture, security boundaries, and delivery roadmap are established.
 
@@ -12,7 +12,10 @@ The application is intentionally not a storefront yet. The current page is a min
 - Prisma ORM 7 with the PostgreSQL driver adapter and tracked migrations
 - Initial catalogue, inventory, order, payment, refund, and webhook-ledger models
 - Project documentation in [`docs/`](./docs)
-- No authentication, storefront, payment, cart, checkout, or admin behavior yet
+- Auth.js credentials authentication for active ADMIN and STAFF users
+- Protected `/admin` shell with server-side database rechecks and role helpers
+- Database-backed, HMAC-keyed login attempt limiting
+- No public registration, storefront, payment, cart, checkout, or operational admin modules yet
 
 ## Local development
 
@@ -33,10 +36,21 @@ Useful checks:
 ```bash
 npm run lint
 npm run typecheck
+npm run test
 npm run build
 npm run db:status
 git diff --check
 ```
+
+## Local administrator provisioning
+
+Set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in the local ignored `.env` file, then run:
+
+```bash
+npm run admin:provision
+```
+
+The password must contain 12 to 128 characters. Provisioning creates a new ADMIN account or deliberately updates and activates the existing account with the normalized email. The script never prints the password.
 
 ## Roadmap
 
