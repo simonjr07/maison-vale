@@ -1,6 +1,6 @@
 # Maison Vale
 
-Maison Vale is a fictional premium lifestyle e-commerce portfolio application. The repository includes the project foundation, PostgreSQL/Prisma data layer, administrative authentication, public catalogue, guest cart, and checkout foundation.
+Maison Vale is a fictional premium lifestyle e-commerce portfolio application. The repository includes the project foundation, PostgreSQL/Prisma data layer, administrative authentication, public catalogue, guest cart, and Stripe test-mode checkout.
 
 ## Current foundation
 
@@ -20,7 +20,9 @@ Maison Vale is a fictional premium lifestyle e-commerce portfolio application. T
 - Transactional inventory movement history for restocks, corrections, and future order activity
 - Versioned browser-persisted guest cart with authoritative server-side price and availability resolution
 - U.S.-only guest checkout validation with authoritative shipping, tax, and final totals
-- No public registration, payment processing, order creation, or operational admin modules yet
+- Stripe-hosted test-mode Checkout with order-before-payment snapshots
+- Raw-body signed webhooks with durable idempotency and transactional inventory finalization
+- No public registration, public order lookup, refunds, or operational admin modules yet
 
 ## Local development
 
@@ -46,6 +48,7 @@ npm run test:catalogue:integration
 npm run test:inventory:integration
 npm run test:cart:integration
 npm run test:checkout:integration
+npm run test:payment:integration
 npm run build
 npm run db:status
 git diff --check
@@ -67,4 +70,4 @@ The planned implementation sequence is documented in [`docs/TASKS.md`](./docs/TA
 
 ## Engineering notes
 
-Checkout currently validates guest details and prepares an authoritative summary only. It does not collect payment, create orders, reserve stock, or decrement inventory. Future commerce work must preserve server-side authority over totals, inventory, authentication, authorization, and payment events. See [`AGENTS.md`](./AGENTS.md) for the working rules.
+Checkout creates a pending order and payment before redirecting to Stripe-hosted Checkout. Only a verified webhook can record payment truth and advance the order. Inventory is not reserved; it is committed transactionally after payment, with a review state if stock has changed. The integration accepts test keys and rejects live-mode sessions and webhooks. See [`AGENTS.md`](./AGENTS.md) for the working rules.

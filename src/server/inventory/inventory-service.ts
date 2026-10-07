@@ -1,4 +1,4 @@
-import type { PrismaClient } from "../../generated/prisma/client";
+import type { Prisma, PrismaClient } from "../../generated/prisma/client";
 
 import {
   type DecreaseInventoryCommand,
@@ -57,6 +57,60 @@ function normalizeInventoryError(error: unknown): never {
   throw new InventoryError("DATABASE_FAILURE");
 }
 
+export async function decreaseInventoryInTransaction(
+  transaction: Prisma.TransactionClient,
+  input: unknown,
+): Promise<InventoryMutationResult> {
+  const command = parseCommand(decreaseInventorySchema, input);
+  const updated = await transaction.productVariant.updateMany({
+    where: {
+      id: command.variantId,
+      active: true,
+      stockQuantity: { gte: command.quantity },
+      product: { active: true, published: true },
+    },
+    data: { stockQuantity: { decrement: command.quantity } },
+  });
+
+  if (updated.count !== 1) {
+    const variant = await transaction.productVariant.findUnique({
+      where: { id: command.variantId },
+      select: {
+        active: true,
+        stockQuantity: true,
+        product: { select: { active: true, published: true } },
+      },
+    });
+
+    if (!variant) throw new InventoryError("VARIANT_NOT_FOUND");
+    if (!variant.active) throw new InventoryError("VARIANT_UNAVAILABLE");
+    if (!variant.product.active || !variant.product.published) {
+      throw new InventoryError("PRODUCT_UNAVAILABLE");
+    }
+    throw new InventoryError("INSUFFICIENT_STOCK");
+  }
+
+  const [variant, movement] = await Promise.all([
+    transaction.productVariant.findUniqueOrThrow({
+      where: { id: command.variantId },
+      select: { id: true, stockQuantity: true },
+    }),
+    transaction.inventoryMovement.create({
+      data: movementData(command, -command.quantity),
+      select: {
+        id: true,
+        quantityDelta: true,
+        reason: true,
+        referenceType: true,
+        referenceId: true,
+        createdAt: true,
+      },
+    }),
+  ]);
+
+  return { variantId: variant.id, stockQuantity: variant.stockQuantity, movement };
+}
+
 export function createInventoryService(database: InventoryDatabase) {
   async function increaseInventory(input: unknown): Promise<InventoryMutationResult> {
     const command = parseCommand(increaseInventorySchema, input);
@@ -112,55 +166,9 @@ export function createInventoryService(database: InventoryDatabase) {
     const command = parseCommand(decreaseInventorySchema, input);
 
     try {
-      return await database.$transaction(async (transaction) => {
-        const updated = await transaction.productVariant.updateMany({
-          where: {
-            id: command.variantId,
-            active: true,
-            stockQuantity: { gte: command.quantity },
-            product: { active: true, published: true },
-          },
-          data: { stockQuantity: { decrement: command.quantity } },
-        });
-
-        if (updated.count !== 1) {
-          const variant = await transaction.productVariant.findUnique({
-            where: { id: command.variantId },
-            select: {
-              active: true,
-              stockQuantity: true,
-              product: { select: { active: true, published: true } },
-            },
-          });
-
-          if (!variant) throw new InventoryError("VARIANT_NOT_FOUND");
-          if (!variant.active) throw new InventoryError("VARIANT_UNAVAILABLE");
-          if (!variant.product.active || !variant.product.published) {
-            throw new InventoryError("PRODUCT_UNAVAILABLE");
-          }
-          throw new InventoryError("INSUFFICIENT_STOCK");
-        }
-
-        const [variant, movement] = await Promise.all([
-          transaction.productVariant.findUniqueOrThrow({
-            where: { id: command.variantId },
-            select: { id: true, stockQuantity: true },
-          }),
-          transaction.inventoryMovement.create({
-            data: movementData(command, -command.quantity),
-            select: {
-              id: true,
-              quantityDelta: true,
-              reason: true,
-              referenceType: true,
-              referenceId: true,
-              createdAt: true,
-            },
-          }),
-        ]);
-
-        return { variantId: variant.id, stockQuantity: variant.stockQuantity, movement };
-      });
+      return await database.$transaction((transaction) =>
+        decreaseInventoryInTransaction(transaction, command),
+      );
     } catch (error) {
       normalizeInventoryError(error);
     }

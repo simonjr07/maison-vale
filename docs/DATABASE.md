@@ -32,6 +32,12 @@ The TASK-005 migrations add the inventory movement ledger, reason enum, variant/
 
 The idempotent development seed creates one StoreSettings record, four active categories, eight public products, two hidden visibility fixtures, twenty-two variants, and ordered local product-image records. The catalogue includes in-stock, out-of-stock, unavailable, exact-price, and variable-price examples. New variants receive their curated starting stock, but later seed runs preserve existing stock so local adjustments are not silently erased. The seed creates no inventory movements, staff user, or credentials.
 
+## TASK-008 payment persistence
+
+The payment migration adds an HMAC checkout-attempt identity and request fingerprint to `Order`; provider Checkout Session id, observed provider amount/currency, and safe failure metadata to `Payment`; and an outcome code to `StripeWebhookEvent`. Unique attempt, Checkout Session, and Stripe event indexes provide durable retry boundaries. Order payment-issue fields record paid-but-not-fulfillable exceptions without falsifying payment status.
+
+Order and item rows are checkout snapshots. Successful webhook finalization updates payment, inventory, inventory movements, order status, order status history, and webhook outcome atomically. Insufficient stock rolls that transaction back before a separate transaction records payment truth and the operational exception.
+
 ## Deferred decisions
 
-The guest cart is browser-persisted and requires no database table. TASK-007 checkout preparation is also stateless and adds no migration: it does not store guest details, create an order or payment, reserve stock, or write inventory movements. The precise TASK-008 order/payment event that consumes or restores inventory remains unresolved. Production tax automation, partial-refund policy, product archival workflows, and production pool sizing remain future decisions.
+The guest cart and TASK-007 preparation remain stateless. TASK-008 does not reserve stock. Production tax automation, abandoned-pending-order cleanup, refunds, partial-refund policy, product archival workflows, and production pool sizing remain future decisions.

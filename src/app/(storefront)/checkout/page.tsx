@@ -4,7 +4,7 @@ import { CheckoutView } from "@/components/checkout/checkout-view";
 
 export const metadata: Metadata = {
   title: "Checkout",
-  description: "Review your order and validate guest shipping details.",
+  description: "Review your order and continue to secure Stripe payment.",
 };
 
 export default function CheckoutPage() {
@@ -18,7 +18,7 @@ export default function CheckoutPage() {
           Checkout
         </h1>
         <p className="mt-5 max-w-2xl text-sm leading-6 text-[#20211d]/60">
-          Review current pricing and enter your U.S. shipping details. No payment is collected at this stage.
+          Review current pricing and enter your U.S. shipping details before continuing to Stripe&apos;s secure checkout.
         </p>
       </header>
       <CheckoutView />

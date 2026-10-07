@@ -15,6 +15,9 @@
     "test:inventory:integration": "node --experimental-strip-types scripts/verify-inventory.mjs",
     "test:cart:integration": "node --experimental-strip-types scripts/verify-cart.mjs",
     "test:checkout:integration": "node --experimental-strip-types scripts/verify-checkout.mjs",
+    "test:payment:integration": "node --experimental-strip-types scripts/verify-payments.mjs",
+    "payment:diagnose": "node --experimental-strip-types scripts/diagnose-payments.mjs",
+    "payment:reconcile:sandbox": "node --experimental-strip-types scripts/reconcile-sandbox-payment.mjs",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:status": "prisma migrate status",
@@ -33,6 +36,7 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "server-only": "^0.0.1",
+    "stripe": "^23.0.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {

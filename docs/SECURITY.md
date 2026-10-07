@@ -1,6 +1,6 @@
 # Security boundaries
 
-Future implementation must verify Stripe webhook signatures, calculate prices server-side, protect inventory mutations, and rate-limit other sensitive flows. Public order lookup must resist enumeration and reveal minimal data.
+Stripe webhook signatures are verified from the untouched raw body before event data is used. Prices, shipping, tax, order snapshots, payment expectations, and inventory remain server-authoritative. Public order lookup must still resist enumeration and reveal minimal data in TASK-009.
 
 Secrets belong in environment configuration and must never reach browser bundles, source control, logs, or error responses. Logs should omit payment credentials and unnecessary personal data. Same-origin and CSRF considerations must be reviewed for state-changing browser requests. Database constraints and transactions must preserve integrity, including non-negative inventory and idempotent payment events.
 
@@ -24,7 +24,9 @@ The cart resolver repeats server-side validation and discards unknown fields. Po
 
 Checkout treats contact, address, cart, and all extra client fields as hostile input. Zod validates and normalizes bounded guest fields, while the server independently re-resolves PostgreSQL visibility, availability, quantities, and prices. Shipping, tax, and total amounts are calculated only from current server data; client-supplied commerce values are ignored.
 
-Checkout preparation is stateless: addresses and email are not logged or persisted, and successful validation creates no order, payment, customer, reservation, stock decrement, or inventory movement. Public responses contain only safe field errors, business messages, minimal normalized cart intent, and allow-listed product presentation data. Request bodies are bounded. The existing login limiter is intentionally not reused because it is identity-specific; deployment-level protection and a dedicated limiter must be reviewed before TASK-008 adds externally visible payment effects.
+Checkout previews are stateless. Payment initiation persists email and address only as an order snapshot, uses bounded bodies and same-origin checks, and never logs the request. The existing database limiter is reused with a checkout-specific HMAC identity namespace; raw email and source values are not stored. Attempt tokens are also stored only as HMAC digests.
+
+Stripe secret and webhook keys remain server-only. The adapter accepts only `sk_test_` keys, rejects live-mode sessions and events, and does not need the publishable key for hosted Checkout. Metadata contains only internal order linkage. Raw webhook bodies, secrets, card data, and full addresses are never logged. The success route reads database state and clears the browser cart only after verified PAID/PROCESSING state.
 
 ## Administrative authentication
 

@@ -37,8 +37,13 @@
 - V1 standard shipping is $8 below a $150 merchandise subtotal and free at or above $150. The server calculates shipping in integer cents.
 - Automated sales-tax calculation is outside V1 checkout foundation. The server returns `taxCents = 0`, and the limitation is disclosed in the UI.
 - Checkout rejects stale quantities and unavailable lines rather than treating the cart page's earlier resolution as authority. It independently resolves current PostgreSQL state.
-- TASK-008 will define when orders, payments, and inventory decrements occur. Successful TASK-007 preparation has no durable commerce side effect.
+- TASK-008 uses card-only Stripe-hosted Checkout in test mode. An internal PENDING order and payment are created before redirect; a verified webhook is the only authority that records paid state and advances fulfillment.
+- Checkout retries use a client UUID stored as an HMAC, a server request fingerprint, a unique order constraint, and the same Stripe idempotency key. Unchanged retries reuse one order and session.
+- Inventory is not reserved or decremented at Session creation. A paid webhook rechecks and commits inventory inside the payment/order transaction.
+- If stock is insufficient after payment, payment remains truthfully PAID, the order remains PENDING, and a safe operational issue requires manual refund or resolution. Automatic refunds are deferred.
+- Stripe event ids are claimed in PostgreSQL, while an atomic payment-state claim also protects against different events for one Session.
+- Cancelled or abandoned Checkout Sessions leave pending historical records. Expiry and cleanup are future operational work.
 
 ## Unresolved
 
-Transactional inventory decrement timing, production tax automation, partial-refund policy, production pool sizing, staff permission mapping for future modules, and password recovery/rotation operations remain open. These must be resolved before the relevant implementation tasks.
+Production tax automation, abandoned-order retention, refund and partial-refund policy, production pool sizing, staff permission mapping for future modules, and password recovery/rotation operations remain open. These must be resolved before the relevant implementation tasks.
