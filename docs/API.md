@@ -1,6 +1,6 @@
 # API and server-boundary conventions
 
-Auth.js route handlers are exposed at `/api/auth/*`; no commerce API endpoints are implemented. The login Server Action validates credentials with Zod and returns a single generic authentication failure message. Protected pages and future actions use the centralized authorization data-access layer rather than client-provided identity or role values.
+Auth.js route handlers are exposed at `/api/auth/*`. Commerce request boundaries currently cover cart resolution and checkout preparation only. The login Server Action validates credentials with Zod and returns a single generic authentication failure message. Protected pages and future actions use the centralized authorization data-access layer rather than client-provided identity or role values.
 
 Public catalogue pages use server-only functions in `src/server/catalogue/catalogue.ts`: `getPublishedProducts`, `getPublishedProductBySlug`, `getActiveCategories`, and `getPublishedProductsByCategory`. These functions enforce active and published visibility in PostgreSQL and return explicit public DTOs. Missing, inactive, and unpublished product or category slugs resolve to the storefront not-found state.
 
@@ -11,6 +11,10 @@ Inventory is not exposed through a public endpoint. Server-side callers use `inc
 `POST /api/cart/resolve` accepts a version 1 cart containing only variant UUIDs and requested quantities. It limits request size, distinct lines, per-line quantity, and total units; duplicate variants are merged during normalization. Unknown properties such as client-provided names, prices, and totals are discarded rather than used.
 
 The response is an allow-listed USD cart DTO containing current public product and variant labels, image, current unit price, resolved quantity, integer-cent line total, status, customer-facing warning, and server-calculated subtotal. It does not expose SKU, raw stock quantity, publication flags, audit history, or admin data. Responses are not cached.
+
+`POST /api/checkout/quote` accepts only the minimal versioned cart. It rejects empty, malformed, stale, out-of-stock, inactive, and hidden carts, then returns current public line data with authoritative subtotal, shipping, tax, and total values. `POST /api/checkout/prepare` accepts the cart plus guest email and U.S. shipping address. Zod trims and bounds fields, normalizes email, validates the fixed `US` country and ZIP format, and returns structured field or business errors.
+
+Both checkout routes use bounded request bodies, no-store responses, integer-cent calculations, and allow-listed DTOs. Unknown client totals, prices, names, shipping, and tax values are discarded. Successful preparation means only that the request is ready for the future payment step; it creates no order, payment, reservation, inventory movement, or retained address.
 
 The server calculates authoritative prices, discounts, shipping, tax, and totals. Client-supplied totals and availability are advisory only. Payment endpoints should use idempotency keys where a retry could create a duplicate effect. Stripe webhooks must verify the raw-body signature before parsing or processing events, then record event identity and process idempotently.
 

@@ -32,7 +32,13 @@
 - Cart limits are 20 distinct lines, 20 units per line, and 50 units in total.
 - Cart resolution always uses current PostgreSQL prices and availability. Excess quantities are visibly clamped; unavailable lines remain removable and are excluded from subtotal.
 - Prices are not persisted. In-session refreshes can announce a price change; a later browser session simply receives and displays the current authoritative price.
+- TASK-007 checkout is stateless and persists no guest contact or address data. It validates the request and returns an authoritative summary without creating an order or payment.
+- V1 checkout ships only within the United States. Country is fixed to `US`, while state or region and a sensible five- or nine-digit ZIP are required.
+- V1 standard shipping is $8 below a $150 merchandise subtotal and free at or above $150. The server calculates shipping in integer cents.
+- Automated sales-tax calculation is outside V1 checkout foundation. The server returns `taxCents = 0`, and the limitation is disclosed in the UI.
+- Checkout rejects stale quantities and unavailable lines rather than treating the cart page's earlier resolution as authority. It independently resolves current PostgreSQL state.
+- TASK-008 will define when orders, payments, and inventory decrements occur. Successful TASK-007 preparation has no durable commerce side effect.
 
 ## Unresolved
 
-Transactional inventory decrement timing, guest cart persistence, shipping-rate logic, tax calculation, partial-refund policy, production pool sizing, staff permission mapping for future modules, and password recovery/rotation operations remain open. These must be resolved before the relevant implementation tasks.
+Transactional inventory decrement timing, production tax automation, partial-refund policy, production pool sizing, staff permission mapping for future modules, and password recovery/rotation operations remain open. These must be resolved before the relevant implementation tasks.

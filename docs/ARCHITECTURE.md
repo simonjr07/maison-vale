@@ -8,9 +8,9 @@ Auth.js provides credentials authentication with encrypted JWT sessions. The cre
 
 The `/admin/login` route is public. The route-grouped `/admin` shell is protected without changing its URL. Authentication answers who the user is; reusable role guards separately decide what ADMIN and STAFF users may do.
 
-The route-grouped storefront exposes `/`, `/shop`, `/shop/[slug]`, and `/collections/[slug]`. UI components call the centralized server-only catalogue data-access module instead of Prisma. Queries select only the fields needed for public presentation, and pure mapping functions produce allow-listed DTOs without database ids, SKUs, raw stock counts, or publication flags. Visibility requires an active, published product in an active category.
+The route-grouped storefront exposes `/`, `/shop`, `/shop/[slug]`, `/collections/[slug]`, `/cart`, and `/checkout`. UI components call centralized server-only data modules instead of Prisma. Queries select only the fields needed for public presentation, and pure mapping functions produce allow-listed DTOs without database ids, SKUs, raw stock counts, or publication flags. Visibility requires an active, published product in an active category.
 
-Catalogue pages read PostgreSQL at request time. They intentionally do not use a persistent application cache because stock labels are advisory and should reflect current variant records. React request memoization prevents duplicate product queries between metadata and page rendering. Checkout, payment, order creation, and operational admin modules are not implemented.
+Catalogue pages read PostgreSQL at request time. They intentionally do not use a persistent application cache because stock labels are advisory and should reflect current variant records. React request memoization prevents duplicate product queries between metadata and page rendering. Payment, order creation, and operational admin modules are not implemented.
 
 Variant availability is centralized in the inventory domain and requires an active, published product, an active variant, and positive stock. The catalogue maps that domain result into public labels without exposing quantities. Runtime inventory commands pass through Zod validation and the server-only inventory service. Stock changes and `InventoryMovement` audit rows share a database transaction.
 
@@ -19,6 +19,10 @@ Purchase-style decrements use one conditional PostgreSQL update that includes th
 The guest cart is a narrow client-side layer under the storefront route group. `CartProvider` loads and validates a versioned `localStorage` payload after hydration, persists only variant ids and quantities, synchronizes browser tabs, and supplies the total-unit navigation count. Server Components remain responsible for the surrounding storefront and product data; client components are limited to cart state, variant selection, and quantity interactions.
 
 `POST /api/cart/resolve` is the server boundary for cart presentation. It validates and normalizes the minimal payload, queries all requested variants in one database call, applies the centralized inventory availability rule, selects current images and prices, and calculates integer-cent line totals and subtotal. No cart operation reserves or decrements stock. Stale quantities are clamped to current availability with an explicit warning, while unavailable lines remain visible and removable but contribute zero to subtotal.
+
+The checkout foundation remains stateless. `POST /api/checkout/quote` independently re-resolves the cart and returns an authoritative order summary. `POST /api/checkout/prepare` additionally validates normalized guest contact and U.S. shipping details before repeating the same cart, inventory, price, shipping, tax, and total checks. Stale quantities and unavailable items fail closed. Neither route stores personal data, creates an order or payment, reserves stock, or writes an inventory movement.
+
+V1 checkout uses deterministic U.S.-only standard shipping: $8 below a $150 merchandise subtotal and free shipping at or above $150. Automated tax calculation is deferred, so the explicit authoritative tax amount is $0. TASK-008 will consume the prepared summary and define the payment/order/inventory commit lifecycle without treating browser state as authority.
 
 ## Intended shape
 

@@ -20,6 +20,12 @@ Guest cart storage is untrusted browser input. The persisted value contains only
 
 The cart resolver repeats server-side validation and discards unknown fields. PostgreSQL supplies current visibility, variant activity, stock constraints, prices, names, and images. All monetary calculations use integer cents. Cart resolution never mutates stock, writes inventory movements, or creates orders, payments, or customer records.
 
+## Guest checkout boundary
+
+Checkout treats contact, address, cart, and all extra client fields as hostile input. Zod validates and normalizes bounded guest fields, while the server independently re-resolves PostgreSQL visibility, availability, quantities, and prices. Shipping, tax, and total amounts are calculated only from current server data; client-supplied commerce values are ignored.
+
+Checkout preparation is stateless: addresses and email are not logged or persisted, and successful validation creates no order, payment, customer, reservation, stock decrement, or inventory movement. Public responses contain only safe field errors, business messages, minimal normalized cart intent, and allow-listed product presentation data. Request bodies are bounded. The existing login limiter is intentionally not reused because it is identity-specific; deployment-level protection and a dedicated limiter must be reviewed before TASK-008 adds externally visible payment effects.
+
 ## Administrative authentication
 
 TASK-003 implements Auth.js credentials authentication with eight-hour encrypted JWT sessions. Only user id and role are added to the session. Passwords are hashed with bcrypt using 12 rounds; inputs are normalized and validated with Zod; inactive users and invalid credentials receive the same public response. A dummy bcrypt comparison reduces account-existence timing differences.

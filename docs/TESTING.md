@@ -12,4 +12,6 @@ TASK-005 tests centralized purchasability and command validation, including inac
 
 TASK-006 tests persisted cart validation and recovery, unsupported versions, invalid quantities, duplicate merging, line and total limits, cart mutation limits, total-unit counts, and in-session price-change detection. `npm run test:cart:integration` uses temporary PostgreSQL fixtures to verify authoritative multi-line totals, ignored client prices, hidden and inactive products, inactive and zero-stock variants, stale quantity adjustment, refreshed prices, and safe DTO shaping.
 
-Planned coverage includes checkout calculations; Stripe signature, webhook, and idempotency tests; order lifecycle tests; and manual hosted QA. Responsive and accessibility spot checks should be recorded for meaningful UI changes.
+TASK-007 tests guest-detail normalization, invalid email, missing address fields, U.S.-only country and ZIP validation, field-length bounds, standard and free shipping, zero-tax behavior, and integer-cent totals. `npm run test:checkout:integration` uses temporary PostgreSQL fixtures to verify current pricing, ignored fake totals, standard and free shipping, hidden products, inactive and zero-stock variants, insufficient-stock rejection, safe DTO shaping, and zero changes to order, payment, stock, and inventory-movement records.
+
+Planned coverage includes Stripe signature, webhook, and idempotency tests; order lifecycle tests; and manual hosted QA. Responsive and accessibility spot checks should be recorded for meaningful UI changes.
