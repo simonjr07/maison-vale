@@ -21,9 +21,9 @@ const publicProduct: CatalogueProductRecord = {
   published: true,
   category: { name: "Soft Tailoring", slug: "soft-tailoring", active: true },
   variants: [
-    { name: "Small", size: "S", color: "Clay", priceCents: 22800, stockQuantity: 4, active: true },
-    { name: "Medium", size: "M", color: "Clay", priceCents: 24800, stockQuantity: 0, active: true },
-    { name: "Archive", size: "L", color: "Clay", priceCents: 19800, stockQuantity: 2, active: false },
+    { id: "00000000-0000-4000-8000-000000000001", name: "Small", size: "S", color: "Clay", priceCents: 22800, stockQuantity: 4, active: true },
+    { id: "00000000-0000-4000-8000-000000000002", name: "Medium", size: "M", color: "Clay", priceCents: 24800, stockQuantity: 0, active: true },
+    { id: "00000000-0000-4000-8000-000000000003", name: "Archive", size: "L", color: "Clay", priceCents: 19800, stockQuantity: 2, active: false },
   ],
   images: [
     { url: "/second.svg", altText: "Second view", sortOrder: 2 },

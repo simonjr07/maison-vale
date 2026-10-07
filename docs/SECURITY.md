@@ -14,6 +14,12 @@ TASK-005 keeps stock authoritative at `ProductVariant`. Inventory commands are s
 
 Every successful mutation writes a non-zero `InventoryMovement` in the same transaction. Failed mutations roll back without an audit row. Movement references must be supplied as a complete type/id pair, and existing history prevents variant deletion. Public availability remains advisory and exact quantities are not included in catalogue DTOs.
 
+## Guest cart boundary
+
+Guest cart storage is untrusted browser input. The persisted value contains only a schema version, variant UUIDs, and quantities—never money, product authority, personal data, or secrets. Malformed JSON, unsupported versions, invalid quantities, duplicate overflow, and excessive carts recover to a safe empty state.
+
+The cart resolver repeats server-side validation and discards unknown fields. PostgreSQL supplies current visibility, variant activity, stock constraints, prices, names, and images. All monetary calculations use integer cents. Cart resolution never mutates stock, writes inventory movements, or creates orders, payments, or customer records.
+
 ## Administrative authentication
 
 TASK-003 implements Auth.js credentials authentication with eight-hour encrypted JWT sessions. Only user id and role are added to the session. Passwords are hashed with bcrypt using 12 rounds; inputs are normalized and validated with Zod; inactive users and invalid credentials receive the same public response. A dummy bcrypt comparison reduces account-existence timing differences.
