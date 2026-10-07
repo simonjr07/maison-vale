@@ -7,6 +7,7 @@ export type CatalogueImageRecord = {
 };
 
 export type CatalogueVariantRecord = {
+  id: string;
   name: string;
   size: string | null;
   color: string | null;
@@ -50,6 +51,7 @@ export type ProductDetailDto = ProductCardDto & {
   description: string;
   images: Array<{ url: string; alt: string }>;
   variants: Array<{
+    id: string;
     name: string;
     size: string | null;
     color: string | null;
@@ -187,6 +189,7 @@ export function toProductDetailDto(
             .map((image) => ({ url: image.url, alt: image.altText }))
         : [FALLBACK_IMAGE],
     variants: product.variants.map((variant) => ({
+      id: variant.id,
       name: variant.name,
       size: variant.size,
       color: variant.color,

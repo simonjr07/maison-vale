@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { ProductConfigurator } from "@/components/cart/product-configurator";
 import { getPublishedProductBySlug } from "@/server/catalogue/catalogue";
 
 export const instant = false;
@@ -91,45 +92,13 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
             {product.description}
           </p>
 
-          <section className="mt-10" aria-labelledby="variant-heading">
-            <h2
-              className="text-xs font-semibold uppercase tracking-[0.2em]"
-              id="variant-heading"
-            >
-              Variants
-            </h2>
-            {product.variants.length > 0 ? (
-              <ul className="mt-4 divide-y divide-[#20211d]/12 border-y border-[#20211d]/12">
-                {product.variants.map((variant, index) => (
-                  <li
-                    className="flex min-h-16 items-center justify-between gap-5 py-3"
-                    key={`${variant.name}-${index}`}
-                  >
-                    <div>
-                      <p className="text-sm font-medium">{variant.name}</p>
-                      {variant.size || variant.color ? (
-                        <p className="mt-1 text-xs text-[#20211d]/55">
-                          {[variant.size, variant.color]
-                            .filter(Boolean)
-                            .join(" · ")}
-                        </p>
-                      ) : null}
-                    </div>
-                    <div className="text-right text-sm">
-                      <p>{variant.price}</p>
-                      <p className="mt-1 text-xs text-[#20211d]/55">
-                        {variant.availability}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-4 text-sm text-[#20211d]/60">
-                Variant information is not available.
-              </p>
-            )}
-          </section>
+          {product.variants.length > 0 ? (
+            <ProductConfigurator variants={product.variants} />
+          ) : (
+            <p className="mt-10 text-sm text-[#20211d]/60">
+              Variant information is not available.
+            </p>
+          )}
 
           <aside className="mt-8 border-l-2 border-[#9a5f42] bg-[#faf8f3] px-5 py-4 text-xs leading-5 text-[#20211d]/60">
             Availability is advisory and may change. Stock will be validated

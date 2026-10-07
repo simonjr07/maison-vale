@@ -7,7 +7,7 @@
 | TASK-003 | Admin authentication and authorization | Protected admin access and roles | Unauthorized access is rejected server-side | Complete |
 | TASK-004 | Product catalogue | Categories, products, images, public browsing | Catalogue data is validated and readable | Complete |
 | TASK-005 | Product variants and inventory | Variant selection and inventory rules | Inventory cannot become negative | Complete |
-| TASK-006 | Cart | Guest cart and price calculation | Cart totals are server-authoritative | Planned |
+| TASK-006 | Cart | Guest cart and price calculation | Cart totals are server-authoritative | Complete |
 | TASK-007 | Checkout foundation | Checkout boundary and order draft | Invalid or stale carts fail safely | Planned |
 | TASK-008 | Stripe integration and webhooks | Test-mode payment flow and idempotent events | Verified webhook events drive payment state | Planned |
 | TASK-009 | Orders and public order lookup | Confirmation and privacy-safe lookup | Orders expose minimal information | Planned |

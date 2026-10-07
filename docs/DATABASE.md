@@ -34,4 +34,4 @@ The idempotent development seed creates one StoreSettings record, four active ca
 
 ## Deferred decisions
 
-Guest cart persistence remains deferred to TASK-006. Cart additions do not reserve stock. The precise order/payment event that consumes or restores inventory will be finalized with checkout and payments. Tax calculation, shipping rates, partial-refund policy, product archival workflows, and production pool sizing remain future decisions.
+The guest cart is browser-persisted and requires no database table. Cart additions do not reserve stock. The precise order/payment event that consumes or restores inventory will be finalized with checkout and payments. Tax calculation, shipping rates, partial-refund policy, product archival workflows, and production pool sizing remain future decisions.

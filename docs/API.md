@@ -8,6 +8,10 @@ Inventory is not exposed through a public endpoint. Server-side callers use `inc
 
 `decreaseInventory` is the future purchase-authority path. Its database predicate requires an active variant, active and published product, and sufficient current stock. A successful mutation and its audit movement commit together. Future checkout code must use this operation and revalidate stock even when catalogue or cart UI previously showed availability.
 
+`POST /api/cart/resolve` accepts a version 1 cart containing only variant UUIDs and requested quantities. It limits request size, distinct lines, per-line quantity, and total units; duplicate variants are merged during normalization. Unknown properties such as client-provided names, prices, and totals are discarded rather than used.
+
+The response is an allow-listed USD cart DTO containing current public product and variant labels, image, current unit price, resolved quantity, integer-cent line total, status, customer-facing warning, and server-calculated subtotal. It does not expose SKU, raw stock quantity, publication flags, audit history, or admin data. Responses are not cached.
+
 The server calculates authoritative prices, discounts, shipping, tax, and totals. Client-supplied totals and availability are advisory only. Payment endpoints should use idempotency keys where a retry could create a duplicate effect. Stripe webhooks must verify the raw-body signature before parsing or processing events, then record event identity and process idempotently.
 
 Expected safeguards include rate limiting for authentication, checkout, webhooks, and public order lookup; DTOs with explicit response allow-lists; conservative logging; and no secrets in browser bundles or responses.

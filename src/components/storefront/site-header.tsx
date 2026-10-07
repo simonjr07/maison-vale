@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { CartLink } from "@/components/cart/cart-link";
+
 export function SiteHeader() {
   return (
     <header className="border-b border-[#20211d]/15 bg-[#f3efe8]">
@@ -27,6 +29,9 @@ export function SiteHeader() {
               >
                 Collections
               </Link>
+            </li>
+            <li>
+              <CartLink />
             </li>
           </ul>
         </nav>

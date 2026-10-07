@@ -35,4 +35,6 @@ TASK-004 provides public product and category browsing, product details, ordered
 
 TASK-005 makes variant stock authoritative through validated server-side mutations, atomic sufficient-stock decrements, and transactional movement history. Cart additions will not reserve stock; checkout must revalidate purchasability and use the inventory service.
 
-Cart, checkout, payment, order lookup, and operational catalogue management remain future work.
+TASK-006 provides a browser-persisted guest cart, variant selection, quantity updates, removal, current server-resolved pricing, and clear stale-item handling. The cart is a convenience layer: it stores no authoritative price or stock value and does not reserve inventory.
+
+Checkout, payment, order lookup, and operational catalogue management remain future work.

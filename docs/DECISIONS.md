@@ -27,6 +27,11 @@
 - Inventory adjustments are recorded as immutable movement rows with a signed delta, reason, and optional paired reference fields.
 - Purchase-style decrements use a single conditional update inside the movement transaction; intentional stock-setting uses optimistic concurrency.
 - Seed reruns preserve stock on existing variants rather than overwriting local inventory changes.
+- The V1 guest cart uses versioned `localStorage` and persists only variant ids and quantities. Browser state is treated as untrusted input.
+- Cart navigation counts total units rather than distinct lines.
+- Cart limits are 20 distinct lines, 20 units per line, and 50 units in total.
+- Cart resolution always uses current PostgreSQL prices and availability. Excess quantities are visibly clamped; unavailable lines remain removable and are excluded from subtotal.
+- Prices are not persisted. In-session refreshes can announce a price change; a later browser session simply receives and displays the current authoritative price.
 
 ## Unresolved
 

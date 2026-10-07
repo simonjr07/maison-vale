@@ -27,6 +27,7 @@ const publicProductSelect = {
   },
   variants: {
     select: {
+      id: true,
       name: true,
       size: true,
       color: true,
