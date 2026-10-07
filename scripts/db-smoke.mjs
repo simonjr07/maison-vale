@@ -13,14 +13,15 @@ const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const [settings, categories, products, variants] = await Promise.all([
+  const [settings, categories, products, variants, inventoryMovements] = await Promise.all([
     prisma.storeSettings.count(),
     prisma.category.count(),
     prisma.product.count(),
     prisma.productVariant.count(),
+    prisma.inventoryMovement.count(),
   ]);
 
-  console.log(`Database connection verified. Rows: settings=${settings}, categories=${categories}, products=${products}, variants=${variants}.`);
+  console.log(`Database connection verified. Rows: settings=${settings}, categories=${categories}, products=${products}, variants=${variants}, inventoryMovements=${inventoryMovements}.`);
 }
 
 main()

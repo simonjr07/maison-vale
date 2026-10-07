@@ -8,10 +8,10 @@ import {
   findActiveCategoryBySlug,
   findPublishedProductBySlug,
   getPriceDisplay,
-  getVariantAvailability,
   selectPrimaryImage,
   toProductDetailDto,
 } from "./catalogue-core";
+import { getVariantAvailability } from "../inventory/inventory-domain";
 
 const publicProduct: CatalogueProductRecord = {
   name: "Hearth Overshirt",
@@ -82,9 +82,17 @@ describe("catalogue visibility", () => {
 
 describe("catalogue presentation", () => {
   it("maps variant availability accurately", () => {
-    expect(getVariantAvailability(publicProduct.variants[0])).toBe("In stock");
-    expect(getVariantAvailability(publicProduct.variants[1])).toBe("Out of stock");
-    expect(getVariantAvailability(publicProduct.variants[2])).toBe("Unavailable");
+    const availability = (variant: (typeof publicProduct.variants)[number]) =>
+      getVariantAvailability({
+        productActive: publicProduct.active,
+        productPublished: publicProduct.published,
+        variantActive: variant.active,
+        stockQuantity: variant.stockQuantity,
+      });
+
+    expect(availability(publicProduct.variants[0])).toBe("In stock");
+    expect(availability(publicProduct.variants[1])).toBe("Out of stock");
+    expect(availability(publicProduct.variants[2])).toBe("Unavailable");
   });
 
   it("shows an exact price or the lowest active variant price", () => {

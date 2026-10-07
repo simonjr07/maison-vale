@@ -16,6 +16,8 @@ Maison Vale is a fictional premium lifestyle e-commerce portfolio application. T
 - Public storefront at `/`, `/shop`, `/shop/[slug]`, and `/collections/[slug]`
 - Server-rendered catalogue queries with active and published visibility rules
 - Honest variant pricing, advisory availability, ordered product images, and safe public DTOs
+- Variant-level inventory authority with validated, concurrency-safe stock mutations
+- Transactional inventory movement history for restocks, corrections, and future order activity
 - No public registration, cart, checkout, payment, or operational admin modules yet
 
 ## Local development
@@ -39,6 +41,7 @@ npm run lint
 npm run typecheck
 npm run test
 npm run test:catalogue:integration
+npm run test:inventory:integration
 npm run build
 npm run db:status
 git diff --check

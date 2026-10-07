@@ -23,6 +23,10 @@
 - Public catalogue routes use request-time PostgreSQL reads rather than a persistent application cache so advisory stock labels do not inherit a revalidation delay.
 - Product images use ordered database records that currently point to repository-owned SVG artwork; upload infrastructure remains deferred.
 - Public catalogue DTOs omit database ids, SKUs, raw stock quantities, and administrative visibility fields.
+- V1 has no inventory reservation model. Cart contents are advisory; checkout must revalidate and atomically decrement stock.
+- Inventory adjustments are recorded as immutable movement rows with a signed delta, reason, and optional paired reference fields.
+- Purchase-style decrements use a single conditional update inside the movement transaction; intentional stock-setting uses optimistic concurrency.
+- Seed reruns preserve stock on existing variants rather than overwriting local inventory changes.
 
 ## Unresolved
 

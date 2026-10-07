@@ -151,7 +151,7 @@ async function main() {
         where: { sku: variant.sku },
         update: {
           productId: product.id, name: variant.name, size: variant.size ?? null, color: variant.color ?? null,
-          priceCents: variant.priceCents, stockQuantity: variant.stockQuantity, active: variant.active ?? true,
+          priceCents: variant.priceCents, active: variant.active ?? true,
         },
         create: {
           productId: product.id, sku: variant.sku, name: variant.name, size: variant.size ?? null, color: variant.color ?? null,

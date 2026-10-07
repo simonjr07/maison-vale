@@ -33,4 +33,6 @@ Preliminary order lifecycle: pending payment → paid/fulfillment pending → pr
 
 TASK-004 provides public product and category browsing, product details, ordered images, honest variant pricing, and advisory availability labels. Public visibility requires active and published products in active categories. Availability is not a reservation and must be validated again when checkout is implemented.
 
+TASK-005 makes variant stock authoritative through validated server-side mutations, atomic sufficient-stock decrements, and transactional movement history. Cart additions will not reserve stock; checkout must revalidate purchasability and use the inventory service.
+
 Cart, checkout, payment, order lookup, and operational catalogue management remain future work.
