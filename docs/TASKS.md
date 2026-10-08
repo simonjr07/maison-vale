@@ -14,6 +14,6 @@
 | TASK-010 | Admin product and inventory management | Admin catalogue and inventory tools | Authorized changes are audited | Complete |
 | TASK-011 | Admin order workflow | Fulfillment workflow | Order transitions are controlled | Complete |
 | TASK-012 | Commerce analytics | Basic admin reporting | Metrics are defined and reproducible | Complete |
-| TASK-013 | Front-end polish, responsive design, and accessibility | Production UI refinement | Responsive and accessibility review passes | Planned |
+| TASK-013 | Front-end polish, responsive design, and accessibility | Production UI refinement and complete product photography | Responsive, imagery, and accessibility review passes | Complete |
 | TASK-014 | Security and production hardening | Threat review and safeguards | Security checklist is addressed | Planned |
 | TASK-015 | Deployment, hosted QA, screenshots, and case study | Vercel/Supabase deployment evidence | Hosted QA and portfolio evidence are complete | Planned |

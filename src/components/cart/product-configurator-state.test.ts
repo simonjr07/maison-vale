@@ -10,9 +10,9 @@ import {
 } from "./product-configurator-state";
 
 const variants: ProductVariantOption[] = [
-  { id: "sold-out", name: "Small", size: "S", color: "Clay", price: "$228", availability: "Out of stock", stockMessage: "Sold out" },
-  { id: "available", name: "Medium", size: "M", color: "Clay", price: "$228", availability: "In stock", stockMessage: "Only 4 left in stock" },
-  { id: "archived", name: "Large", size: "L", color: "Clay", price: "$228", availability: "Unavailable", stockMessage: "Unavailable" },
+  { id: "sold-out", name: "Small", size: "S", color: "Clay", price: "$228", availability: "Out of stock", stockMessage: "Sold out", images: [] },
+  { id: "available", name: "Medium", size: "M", color: "Clay", price: "$228", availability: "In stock", stockMessage: "Only 4 left in stock", images: [] },
+  { id: "archived", name: "Large", size: "L", color: "Clay", price: "$228", availability: "Unavailable", stockMessage: "Unavailable", images: [] },
 ];
 
 describe("product configurator state", () => {

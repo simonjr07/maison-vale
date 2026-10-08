@@ -59,6 +59,14 @@ try {
   verify(product?.variants.length === 1, "Product creation did not atomically create its first variant.");
   verify(product?.variants[0].stockQuantity === 0, "A new variant did not begin with zero inventory.");
   ids.variants.push(product.variants[0].id);
+  await prisma.productImage.create({
+    data: {
+      productId: created.id,
+      sortOrder: 1,
+      url: "/catalogue/photography/hearth-overshirt-clay-detail.webp",
+      altText: "Temporary supporting gallery view",
+    },
+  });
 
   await expectError(
     () => service.createProduct(productInput(category.id, "duplicate-sku"), variantInput()),
@@ -68,6 +76,8 @@ try {
   verify(await prisma.product.count({ where: { slug: `admin-verification-${key}-duplicate-sku` } }) === 0, "Failed product creation was not rolled back.");
 
   await service.updateProduct(created.id, { ...productInput(category.id), name: "Admin verification updated", published: true });
+  const editedImages = await prisma.productImage.findMany({ where: { productId: created.id }, orderBy: { sortOrder: "asc" } });
+  verify(editedImages.length === 2 && editedImages[1].altText === "Temporary supporting gallery view", "Primary image editing removed a supporting gallery view.");
   const visible = await prisma.product.findFirst({ where: { id: created.id, active: true, published: true, category: { active: true } } });
   verify(Boolean(visible), "Published product did not satisfy storefront visibility rules.");
 

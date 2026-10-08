@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = { title: "Checkout cancelled" };
+export const metadata: Metadata = { title: "Checkout cancelled", robots: { index: false, follow: false } };
 
 export default function CheckoutCancelPage() {
   return (

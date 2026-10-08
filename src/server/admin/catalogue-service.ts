@@ -93,13 +93,20 @@ export function createAdminCatalogueService(database: PrismaClient) {
         const category = await tx.category.findUnique({ where: { id: input.categoryId }, select: { id: true, active: true } });
         if (!existing) throw new CatalogueAdminError("NOT_FOUND", "The product was not found.");
         if (!category?.active) throw new CatalogueAdminError("NOT_FOUND", "Select an active category.");
-        await tx.productImage.deleteMany({ where: { productId: id } });
+        if (!input.imageUrl || !input.imageAlt) {
+          await tx.productImage.deleteMany({ where: { productId: id } });
+        } else {
+          await tx.productImage.upsert({
+            where: { productId_sortOrder: { productId: id, sortOrder: 0 } },
+            update: { url: input.imageUrl, altText: input.imageAlt },
+            create: { productId: id, url: input.imageUrl, altText: input.imageAlt, sortOrder: 0 },
+          });
+        }
         return tx.product.update({
           where: { id },
           data: {
             name: input.name, slug: input.slug, description: input.description, categoryId: input.categoryId,
             active: input.active, published: input.published,
-            images: input.imageUrl && input.imageAlt ? { create: { url: input.imageUrl, altText: input.imageAlt, sortOrder: 0 } } : undefined,
           },
           select: { id: true, slug: true },
         });

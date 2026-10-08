@@ -52,9 +52,9 @@ export default async function HomePage() {
             alt="A study in olive, clay, and natural tones for the Maison Vale collection"
             className="object-cover"
             fill
-            priority
+            preload
             sizes="(max-width: 1024px) 100vw, 48vw"
-            src="/catalogue/editorial.svg"
+            src="/catalogue/photography/maison-vale-editorial-hero.webp"
           />
         </div>
       </section>

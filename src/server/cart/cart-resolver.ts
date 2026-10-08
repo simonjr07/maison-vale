@@ -7,6 +7,7 @@ import {
   normalizeCart,
 } from "../../cart/cart-domain.ts";
 import { getVariantAvailability } from "../inventory/inventory-domain.ts";
+import { selectVariantPrimaryImage } from "../catalogue/catalogue-core.ts";
 
 const FALLBACK_IMAGE = {
   url: "/catalogue/fallback.svg",
@@ -65,9 +66,8 @@ export function createCartResolver(database: PrismaClient) {
             published: true,
             category: { select: { active: true } },
             images: {
-              select: { url: true, altText: true },
+              select: { url: true, altText: true, sortOrder: true },
               orderBy: { sortOrder: "asc" },
-              take: 1,
             },
           },
         },
@@ -88,12 +88,7 @@ export function createCartResolver(database: PrismaClient) {
 
       if (availability === "Unavailable") return unavailableItem(item);
 
-      const image = variant.product.images[0]
-        ? {
-            url: variant.product.images[0].url,
-            alt: variant.product.images[0].altText,
-          }
-        : FALLBACK_IMAGE;
+      const image = selectVariantPrimaryImage(variant.product.images, variant.color);
       const common = {
         variantId: variant.id,
         productName: variant.product.name,

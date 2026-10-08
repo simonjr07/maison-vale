@@ -19,10 +19,10 @@ export function ProductFields({ product, categories }: {
       <label className={labelClass}>Description<textarea className={`${fieldClass} min-h-32 resize-y`} name="description" defaultValue={product?.description} required minLength={20} maxLength={5000} /></label>
       <label className={labelClass}>Category<select className={fieldClass} name="categoryId" defaultValue={product?.categoryId} required><option value="">Select a category</option>{categories.map((category) => <option value={category.id} key={category.id}>{category.name}</option>)}</select></label>
       <div className="grid gap-5 sm:grid-cols-2">
-        <label className={labelClass}>Curated image<select className={fieldClass} name="imageUrl" defaultValue={image?.url ?? ""}><option value="">No image</option>{CATALOGUE_IMAGE_OPTIONS.map((url) => <option value={url} key={url}>{url.replace("/catalogue/", "")}</option>)}</select></label>
+        <label className={labelClass}>Primary catalogue image<select className={fieldClass} name="imageUrl" defaultValue={image?.url ?? ""}><option value="">No image</option>{CATALOGUE_IMAGE_OPTIONS.map((url) => <option value={url} key={url}>{url.replace("/catalogue/photography/", "").replace("/catalogue/", "")}</option>)}</select></label>
         <label className={labelClass}>Image alternative text<input className={fieldClass} name="imageAlt" defaultValue={image?.altText ?? ""} maxLength={240} /></label>
       </div>
-      <p className="-mt-2 text-xs leading-5 text-[#25231f]/55">Images are selected from reviewed local assets. Uploads and external image URLs are intentionally unavailable.</p>
+      <p className="-mt-2 text-xs leading-5 text-[#25231f]/55">Choose a reviewed local asset as the primary image. Existing gallery images remain in place unless you choose “No image”. Uploads and external URLs are intentionally unavailable.</p>
       <div className="flex flex-wrap gap-6 border-t border-[#25231f]/10 pt-5">
         <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="active" defaultChecked={product?.active ?? true} /> Active</label>
         <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="published" defaultChecked={product?.published ?? false} /> Published to storefront</label>

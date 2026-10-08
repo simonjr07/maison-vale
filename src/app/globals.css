@@ -6,6 +6,7 @@
   --paper: #faf8f3;
   --moss: #34463b;
   --clay: #9a5f42;
+  --display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
 }
 
 @theme inline {
@@ -21,6 +22,27 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+h1,
+h2,
+h3 {
+  font-family: var(--display);
+}
+
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 100;
+  translate: 0 -200%;
+  background: var(--foreground);
+  color: white;
+  padding: 0.75rem 1rem;
+}
+
+.skip-link:focus {
+  translate: 0;
+}
+
 ::selection {
   background: #c9b49d;
   color: #20211d;
@@ -33,4 +55,15 @@ body {
 
 html {
   scroll-padding-top: 6rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

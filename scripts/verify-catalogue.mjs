@@ -38,9 +38,14 @@ try {
   verify(visibleProducts.every((product) => product.category.active), "A visible product belongs to an inactive category.");
   verify(visibleProducts.every((product) => product.variants.length > 0), "A visible product has no variants.");
   verify(visibleProducts.every((product) => product.images.length > 0), "A visible product has no image.");
+  verify(visibleProducts.every((product) => product.images.length >= 2), "A visible product is missing its gallery image.");
   verify(
     visibleProducts.every((product) => product.images.every((image) => image.url && image.altText && image.sortOrder >= 0)),
     "A public product image is incomplete.",
+  );
+  verify(
+    visibleProducts.every((product) => product.images.every((image) => image.url.startsWith("/catalogue/photography/") && image.url.endsWith(".webp"))),
+    "A public product is not using an optimized curated photograph.",
   );
   verify(
     visibleProducts.some((product) => product.variants.some((variant) => variant.active && variant.stockQuantity === 0)),

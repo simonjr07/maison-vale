@@ -21,7 +21,10 @@ const products = [
   {
     name: "Hearth Overshirt", slug: "hearth-overshirt", categorySlug: "soft-tailoring",
     description: "A softly structured overshirt in brushed cotton twill, finished with a clean collar and generous patch pockets. Cut to layer comfortably without losing its composed line.",
-    image: "/catalogue/hearth-overshirt.svg", imageAlt: "Hearth Overshirt in warm clay cotton twill",
+    images: [
+      { url: "/catalogue/photography/hearth-overshirt-clay-hero.webp", altText: "Hearth Overshirt in clay brushed cotton twill" },
+      { url: "/catalogue/photography/hearth-overshirt-clay-detail.webp", altText: "Close view of the Hearth Overshirt collar, buttons, and twill texture" },
+    ],
     variants: [
       { sku: "MV-HOS-CLY-S", name: "Clay / Small", size: "S", color: "Clay", priceCents: 22800, stockQuantity: 6 },
       { sku: "MV-HOS-CLY-M", name: "Clay / Medium", size: "M", color: "Clay", priceCents: 22800, stockQuantity: 0 },
@@ -31,7 +34,10 @@ const products = [
   {
     name: "Column Trouser", slug: "column-trouser", categorySlug: "soft-tailoring",
     description: "A full-length trouser with a relaxed straight leg, single front pleat, and a neat internal waistband. The mid-weight wool blend holds its shape while remaining easy to wear.",
-    image: "/catalogue/column-trouser.svg", imageAlt: "Column Trouser in deep olive wool blend",
+    images: [
+      { url: "/catalogue/photography/column-trouser-olive-hero.webp", altText: "Column Trouser in deep olive wool blend" },
+      { url: "/catalogue/photography/column-trouser-olive-detail.webp", altText: "Close view of the Column Trouser pleat and waistband construction" },
+    ],
     variants: [
       { sku: "MV-COL-OLV-30", name: "Olive / 30", size: "30", color: "Olive", priceCents: 18400, stockQuantity: 3 },
       { sku: "MV-COL-OLV-32", name: "Olive / 32", size: "32", color: "Olive", priceCents: 18400, stockQuantity: 7 },
@@ -41,7 +47,12 @@ const products = [
   {
     name: "Ridge Merino Crew", slug: "ridge-merino-crew", categorySlug: "knitwear",
     description: "A fine-gauge merino crew with a gently relaxed shoulder and compact ribbed trims. Warm enough to stand alone, light enough to sit beneath a coat.",
-    image: "/catalogue/ridge-merino-crew.svg", imageAlt: "Ridge Merino Crew in a soft oat shade",
+    images: [
+      { url: "/catalogue/photography/ridge-merino-crew-oat-hero.webp", altText: "Ridge Merino Crew in soft oat merino" },
+      { url: "/catalogue/photography/ridge-merino-crew-oat-detail.webp", altText: "Close view of the oat Ridge Merino Crew neckline and fine knit" },
+      { url: "/catalogue/photography/ridge-merino-crew-graphite-hero.webp", altText: "Ridge Merino Crew in graphite merino" },
+      { url: "/catalogue/photography/ridge-merino-crew-graphite-detail.webp", altText: "Close view of the graphite Ridge Merino Crew ribbing and fine knit" },
+    ],
     variants: [
       { sku: "MV-RMC-OAT-M", name: "Oat / Medium", size: "M", color: "Oat", priceCents: 16800, stockQuantity: 5 },
       { sku: "MV-RMC-GRA-M", name: "Graphite / Medium", size: "M", color: "Graphite", priceCents: 17800, stockQuantity: 4 },
@@ -50,7 +61,10 @@ const products = [
   {
     name: "Vale Rib Cardigan", slug: "vale-rib-cardigan", categorySlug: "knitwear",
     description: "A substantial rib cardigan with a low V-neck and corozo buttons. Its compact knit gives the ease of a layer with the presence of a light jacket.",
-    image: "/catalogue/vale-rib-cardigan.svg", imageAlt: "Vale Rib Cardigan in charcoal ribbed knit",
+    images: [
+      { url: "/catalogue/photography/vale-rib-cardigan-charcoal-hero.webp", altText: "Vale Rib Cardigan in charcoal knit" },
+      { url: "/catalogue/photography/vale-rib-cardigan-charcoal-detail.webp", altText: "Close view of the Vale Rib Cardigan ribbing and corozo buttons" },
+    ],
     variants: [
       { sku: "MV-VRC-CHR-XS", name: "Charcoal / Extra small", size: "XS", color: "Charcoal", priceCents: 19600, stockQuantity: 2 },
       { sku: "MV-VRC-CHR-S", name: "Charcoal / Small", size: "S", color: "Charcoal", priceCents: 19600, stockQuantity: 0 },
@@ -61,7 +75,12 @@ const products = [
   {
     name: "Fold Cardholder", slug: "fold-cardholder", categorySlug: "leather-goods",
     description: "A compact folded cardholder cut from vegetable-tanned leather. Four card slots and a central pocket keep the profile slim and practical.",
-    image: "/catalogue/fold-cardholder.svg", imageAlt: "Fold Cardholder in saddle-brown leather",
+    images: [
+      { url: "/catalogue/photography/fold-cardholder-saddle-hero.webp", altText: "Fold Cardholder in saddle vegetable-tanned leather" },
+      { url: "/catalogue/photography/fold-cardholder-saddle-detail.webp", altText: "Close view of the saddle Fold Cardholder stitching and leather grain" },
+      { url: "/catalogue/photography/fold-cardholder-black-hero.webp", altText: "Fold Cardholder in black vegetable-tanned leather" },
+      { url: "/catalogue/photography/fold-cardholder-black-detail.webp", altText: "Close view of the black Fold Cardholder stitching and leather grain" },
+    ],
     variants: [
       { sku: "MV-FCH-SAD", name: "Saddle", color: "Saddle", priceCents: 8600, stockQuantity: 9 },
       { sku: "MV-FCH-BLK", name: "Black", color: "Black", priceCents: 8600, stockQuantity: 5 },
@@ -70,7 +89,10 @@ const products = [
   {
     name: "Linea Belt", slug: "linea-belt", categorySlug: "leather-goods",
     description: "A narrow full-grain leather belt with softly rounded edges and a brushed brass buckle. Designed as a quiet finishing line rather than a statement.",
-    image: "/catalogue/linea-belt.svg", imageAlt: "Linea Belt in dark brown leather with a brass buckle",
+    images: [
+      { url: "/catalogue/photography/linea-belt-dark-brown-hero.webp", altText: "Linea Belt in dark brown leather with a brushed brass buckle" },
+      { url: "/catalogue/photography/linea-belt-dark-brown-detail.webp", altText: "Close view of the Linea Belt edge finishing and brass buckle" },
+    ],
     variants: [
       { sku: "MV-LIN-DBR-30", name: "Dark brown / 30", size: "30", color: "Dark brown", priceCents: 11200, stockQuantity: 0 },
       { sku: "MV-LIN-DBR-34", name: "Dark brown / 34", size: "34", color: "Dark brown", priceCents: 11200, stockQuantity: 0 },
@@ -79,7 +101,12 @@ const products = [
   {
     name: "Vale Carryall", slug: "vale-carryall", categorySlug: "everyday-objects",
     description: "A structured canvas carryall with understated proportions and practical capacity. Reinforced handles and an internal pocket support everyday journeys without adding bulk.",
-    image: "/catalogue/vale-carryall.svg", imageAlt: "Vale Carryall in natural structured canvas",
+    images: [
+      { url: "/catalogue/photography/vale-carryall-natural-hero.webp", altText: "Vale Carryall in natural structured canvas" },
+      { url: "/catalogue/photography/vale-carryall-natural-detail.webp", altText: "Close view of the natural Vale Carryall handles and canvas construction" },
+      { url: "/catalogue/photography/vale-carryall-ink-hero.webp", altText: "Vale Carryall in deep ink canvas" },
+      { url: "/catalogue/photography/vale-carryall-ink-detail.webp", altText: "Close view of the ink Vale Carryall handles and canvas construction" },
+    ],
     variants: [
       { sku: "MV-CARRY-NAT", name: "Natural", color: "Natural", priceCents: 14800, stockQuantity: 12 },
       { sku: "MV-CARRY-INK", name: "Ink", color: "Ink", priceCents: 14800, stockQuantity: 8 },
@@ -88,7 +115,12 @@ const products = [
   {
     name: "Studio Wool Throw", slug: "studio-wool-throw", categorySlug: "everyday-objects",
     description: "A softly brushed wool throw with a subtle woven border. Its generous scale and balanced weight bring warmth to a chair, sofa, or the foot of a bed.",
-    image: "/catalogue/studio-wool-throw.svg", imageAlt: "Studio Wool Throw in rust and warm neutral tones",
+    images: [
+      { url: "/catalogue/photography/studio-wool-throw-rust-hero.webp", altText: "Studio Wool Throw in rust" },
+      { url: "/catalogue/photography/studio-wool-throw-rust-detail.webp", altText: "Close view of the rust Studio Wool Throw weave and brushed fringe" },
+      { url: "/catalogue/photography/studio-wool-throw-moss-hero.webp", altText: "Studio Wool Throw in moss" },
+      { url: "/catalogue/photography/studio-wool-throw-moss-detail.webp", altText: "Close view of the moss Studio Wool Throw weave and brushed fringe" },
+    ],
     variants: [
       { sku: "MV-SWT-RUS", name: "Rust", color: "Rust", priceCents: 15400, stockQuantity: 4 },
       { sku: "MV-SWT-MOS", name: "Moss", color: "Moss", priceCents: 15400, stockQuantity: 6 },
@@ -140,11 +172,14 @@ async function main() {
       },
     });
 
-    await prisma.productImage.upsert({
-      where: { productId_sortOrder: { productId: product.id, sortOrder: 0 } },
-      update: { url: productData.image, altText: productData.imageAlt },
-      create: { productId: product.id, url: productData.image, altText: productData.imageAlt, sortOrder: 0 },
-    });
+    const productImages = productData.images ?? [{ url: productData.image, altText: productData.imageAlt }];
+    for (const [sortOrder, image] of productImages.entries()) {
+      await prisma.productImage.upsert({
+        where: { productId_sortOrder: { productId: product.id, sortOrder } },
+        update: { url: image.url, altText: image.altText },
+        create: { productId: product.id, url: image.url, altText: image.altText, sortOrder },
+      });
+    }
 
     for (const variant of productData.variants) {
       await prisma.productVariant.upsert({
