@@ -4,41 +4,40 @@ import {
   CheckoutValidationError,
 } from "@/server/checkout/checkout-resolver";
 import { createStripeCheckoutSession } from "@/server/payment/checkout-session";
+import {
+  RequestBodyTooLargeError,
+  getApplicationOrigin,
+  getTrustedRequestSource,
+  hasExpectedOrigin,
+  readBoundedText,
+} from "@/server/http/request-security";
 
 const MAX_BODY_LENGTH = 32_768;
 
-function sourceFrom(request: Request) {
-  return (
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    request.headers.get("x-real-ip")?.trim() ||
-    "unavailable"
-  ).slice(0, 128);
-}
-
-function applicationOrigin(request: Request) {
-  const configured = process.env.APP_URL?.trim();
-  return new URL(configured || request.url).origin;
-}
-
 export async function POST(request: Request) {
   try {
-    const origin = applicationOrigin(request);
-    const requestOrigin = request.headers.get("origin");
-    if (requestOrigin && new URL(requestOrigin).origin !== origin) {
+    const origin = getApplicationOrigin(request.url);
+    if (!origin) {
+      return Response.json(
+        { error: "Secure payment is temporarily unavailable.", code: "PAYMENT_NOT_CONFIGURED" },
+        { status: 503 },
+      );
+    }
+    if (!hasExpectedOrigin(request, origin)) {
       return Response.json({ error: "This checkout request is not allowed." }, { status: 403 });
     }
 
-    const body = await request.text();
-    if (body.length > MAX_BODY_LENGTH) {
-      return Response.json({ error: "The checkout request is too large." }, { status: 413 });
-    }
+    const body = await readBoundedText(request, MAX_BODY_LENGTH);
 
     const result = await createStripeCheckoutSession(JSON.parse(body), {
-      source: sourceFrom(request),
+      source: getTrustedRequestSource(request.headers),
       appOrigin: origin,
     });
     return Response.json(result, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return Response.json({ error: "The checkout request is too large." }, { status: 413 });
+    }
     if (error instanceof CheckoutValidationError) {
       return Response.json(
         { error: error.message, fieldErrors: error.fieldErrors },

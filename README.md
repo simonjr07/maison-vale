@@ -30,6 +30,8 @@ Maison Vale is a fictional premium lifestyle e-commerce portfolio application. T
 - Protected read-only analytics with verified sales, refund, order, snapshot-performance, and live inventory signals
 - Variant-aware product galleries backed by 24 optimized catalogue photographs and a curated editorial image
 - Responsive storefront navigation, visible keyboard focus, skip navigation, and reduced-motion support
+- Production-oriented security headers, trusted-proxy handling, byte-bounded request reads, and source-wide abuse limits
+- Deployment configuration validation, guarded operational scripts, rate-limit maintenance, and CI verification
 - No public registration, automated refunds, or carrier tracking
 
 ## Local development
@@ -61,6 +63,8 @@ npm run test:orders:integration
 npm run test:admin-catalogue:integration
 npm run test:admin-orders:integration
 npm run test:admin-analytics:integration
+npm run deployment:check
+npm run rate-limits:cleanup
 npm run build
 npm run db:status
 git diff --check
@@ -89,3 +93,5 @@ Guest order lookup requires the order reference and exact checkout email. Succes
 The seeded public catalogue uses reviewed local WebP photography for every product colourway. Size-only variants reuse their colour gallery, colour changes update the gallery and cart thumbnail, and checkout still revalidates the underlying variant and inventory. Asset provenance and replacement guidance are documented in [`docs/IMAGE_ASSETS.md`](./docs/IMAGE_ASSETS.md).
 
 The protected `/admin` landing page reports real PostgreSQL records and is available to active ADMIN and STAFF users. Gross sales use persisted provider-observed amounts for verified USD payments currently recorded as paid, partially refunded, or refunded; pending and failed payments are excluded. Refund rows are reported by their own recorded dates, inventory alerts always use current stock, and Stripe test-mode figures are explicitly identified as sandbox activity.
+
+Production deployment remains a separate, evidence-driven step. Review [`docs/SECURITY_AUDIT.md`](./docs/SECURITY_AUDIT.md), run `npm run deployment:check` inside the hosted environment, and complete [`docs/TASK_015_CHECKLIST.md`](./docs/TASK_015_CHECKLIST.md) before treating the application as deployed. The checker validates configuration without printing secret values. `npm run rate-limits:cleanup` is dry-run by default; pass `-- --apply` only from an authorized maintenance environment.

@@ -2,7 +2,13 @@ import "server-only";
 
 import { db } from "@/server/db/client";
 
-import { consumeRateLimitSafely, createRateLimitWindow } from "./rate-limit-core";
+import {
+  MAX_LOGIN_ATTEMPTS,
+  MAX_LOGIN_SOURCE_ATTEMPTS,
+  consumeRateLimitSafely,
+  createRateLimitWindow,
+  isRateLimitAllowed,
+} from "./rate-limit-core";
 
 export async function consumeLoginAttempt(email: string, source: string) {
   const secret = process.env.RATE_LIMIT_SECRET;
@@ -11,26 +17,33 @@ export async function consumeLoginAttempt(email: string, source: string) {
     return false;
   }
 
-  const window = createRateLimitWindow(email, source, secret);
+  const windows = [
+    { ...createRateLimitWindow(`login:${email}`, source, secret), maximum: MAX_LOGIN_ATTEMPTS },
+    { ...createRateLimitWindow("login-source", source, secret), maximum: MAX_LOGIN_SOURCE_ATTEMPTS },
+  ];
 
   return consumeRateLimitSafely(async () => {
-    const bucket = await db.loginRateLimitBucket.upsert({
-      where: {
-        keyHash_windowStart: {
+    const buckets = await db.$transaction(windows.map((window) =>
+      db.loginRateLimitBucket.upsert({
+        where: {
+          keyHash_windowStart: {
+            keyHash: window.keyHash,
+            windowStart: window.windowStart,
+          },
+        },
+        update: { attempts: { increment: 1 } },
+        create: {
           keyHash: window.keyHash,
           windowStart: window.windowStart,
+          expiresAt: window.expiresAt,
+          attempts: 1,
         },
-      },
-      update: { attempts: { increment: 1 } },
-      create: {
-        keyHash: window.keyHash,
-        windowStart: window.windowStart,
-        expiresAt: window.expiresAt,
-        attempts: 1,
-      },
-      select: { attempts: true },
-    });
+        select: { attempts: true },
+      }),
+    ));
 
-    return bucket.attempts;
+    return buckets.every((bucket, index) =>
+      isRateLimitAllowed(bucket.attempts, windows[index].maximum),
+    ) ? 1 : Number.MAX_SAFE_INTEGER;
   });
 }

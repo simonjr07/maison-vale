@@ -4,6 +4,7 @@ import {
   consumeRateLimitSafely,
   createRateLimitWindow,
   isLoginAttemptAllowed,
+  isRateLimitAllowed,
   LOGIN_WINDOW_MS,
   MAX_LOGIN_ATTEMPTS,
 } from "./rate-limit-core";
@@ -23,6 +24,12 @@ describe("login rate limiting", () => {
   it("allows only the configured number of attempts per window", () => {
     expect(isLoginAttemptAllowed(MAX_LOGIN_ATTEMPTS)).toBe(true);
     expect(isLoginAttemptAllowed(MAX_LOGIN_ATTEMPTS + 1)).toBe(false);
+  });
+
+  it("supports bounded source-wide limits", () => {
+    expect(isRateLimitAllowed(25, 25)).toBe(true);
+    expect(isRateLimitAllowed(26, 25)).toBe(false);
+    expect(isRateLimitAllowed(-1, 25)).toBe(false);
   });
 
   it("fails closed when rate-limit persistence fails", async () => {

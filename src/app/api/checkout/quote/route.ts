@@ -3,19 +3,19 @@ import {
   CheckoutValidationError,
 } from "@/server/checkout/checkout-resolver";
 import { quoteCheckout } from "@/server/checkout/checkout";
+import { RequestBodyTooLargeError, readBoundedText } from "@/server/http/request-security";
 
 const MAX_BODY_LENGTH = 16_384;
 
 export async function POST(request: Request) {
   try {
-    const body = await request.text();
-    if (body.length > MAX_BODY_LENGTH) {
-      return Response.json({ error: "The checkout request is too large." }, { status: 413 });
-    }
-
+    const body = await readBoundedText(request, MAX_BODY_LENGTH);
     const summary = await quoteCheckout(JSON.parse(body));
     return Response.json(summary, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return Response.json({ error: "The checkout request is too large." }, { status: 413 });
+    }
     if (error instanceof CheckoutValidationError) {
       return Response.json(
         { error: error.message, fieldErrors: error.fieldErrors },

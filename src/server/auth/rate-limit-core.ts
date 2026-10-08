@@ -2,6 +2,8 @@ import { createHmac } from "node:crypto";
 
 export const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 export const MAX_LOGIN_ATTEMPTS = 5;
+export const MAX_LOGIN_SOURCE_ATTEMPTS = 25;
+export const MAX_CHECKOUT_SOURCE_ATTEMPTS = 20;
 
 export type RateLimitWindow = {
   keyHash: string;
@@ -31,6 +33,10 @@ export function createRateLimitWindow(
 
 export function isLoginAttemptAllowed(attempts: number) {
   return attempts <= MAX_LOGIN_ATTEMPTS;
+}
+
+export function isRateLimitAllowed(attempts: number, maximum: number) {
+  return Number.isSafeInteger(attempts) && attempts >= 0 && attempts <= maximum;
 }
 
 export async function consumeRateLimitSafely(

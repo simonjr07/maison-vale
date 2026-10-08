@@ -2,10 +2,16 @@ import "dotenv/config";
 
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client.ts";
+import { assertDevelopmentSeedAllowed } from "../src/operations/runtime-safety.ts";
 
 const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) throw new Error("DATABASE_URL is not configured.");
+assertDevelopmentSeedAllowed({
+  connectionString,
+  nodeEnv: process.env.NODE_ENV,
+  allowRemoteSeed: process.env.ALLOW_REMOTE_SEED,
+});
 
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });

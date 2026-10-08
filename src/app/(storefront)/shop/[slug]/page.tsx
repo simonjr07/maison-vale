@@ -34,8 +34,12 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
 
   return (
     <main className="mx-auto max-w-7xl px-5 py-8 sm:px-8 sm:py-12 lg:px-10 lg:py-16">
-      <Link className="skip-link" href="/shop">
-        Skip to shop
+      <Link
+        className="mb-6 inline-flex min-h-11 items-center gap-2 rounded-full border border-[#20211d]/25 bg-[#faf8f3] px-4 text-sm font-medium transition-colors hover:border-[#20211d] hover:bg-[#20211d] hover:text-white"
+        href="/shop"
+      >
+        <span aria-hidden="true">←</span>
+        Back to shop
       </Link>
       <nav aria-label="Breadcrumb" className="mb-8 text-xs text-[#20211d]/55">
         <ol className="flex flex-wrap items-center gap-2">

@@ -24,7 +24,7 @@ Unique constraints protect user email, category and product slugs, SKU, order nu
 
 The initial SQL migration adds checks for non-negative variant prices, stock, order totals, payment amounts, and image sort order; positive quantities and refund amounts; and internally consistent order and line totals. Application transactions will still be required for concurrent inventory changes.
 
-The TASK-003 migration adds a unique HMAC-key/window pair, expiration index, and non-negative attempt constraint for login rate limiting. Buckets intentionally store no raw email address or client address. Expired-bucket cleanup can be introduced as a scheduled maintenance operation before production traffic.
+The TASK-003 migration adds a unique HMAC-key/window pair, expiration index, and non-negative attempt constraint for login rate limiting. Buckets intentionally store no raw email address or client address. `npm run rate-limits:cleanup` reports expired rows without deleting them; an authorized scheduled maintenance job may use `npm run rate-limits:cleanup -- --apply`.
 
 The TASK-005 migrations add the inventory movement ledger, reason enum, variant/date and reference indexes, a non-zero delta check, and a paired-reference check. Movement rows restrict variant deletion so audit history cannot disappear through a catalogue cascade. TASK-010 introduces no schema migration: administrative workflows archive products and variants with existing activity/publication flags, and stock auditability continues through `InventoryMovement`.
 
@@ -47,3 +47,5 @@ TASK-012 adds no schema migration. Analytics reads existing `Payment`, `Refund`,
 ## Deferred decisions
 
 The guest cart and TASK-007 preparation remain stateless. TASK-008 does not reserve stock. Production tax automation, abandoned-pending-order cleanup, refunds, partial-refund policy, product archival workflows, and production pool sizing remain future decisions.
+
+TASK-014 adds no migration. Production `DATABASE_URL` and `DIRECT_URL` values for non-local PostgreSQL hosts must request TLS with `sslmode=require`, `verify-ca`, or `verify-full`. The runtime database role should have only the DML permissions the application needs; a separate migration role may hold DDL privileges. Supabase deployments should use the supported pooled runtime connection for application traffic and the direct connection for reviewed migrations.
