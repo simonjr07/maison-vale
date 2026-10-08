@@ -47,4 +47,6 @@ TASK-008 creates pending order, item, and payment snapshots before redirecting t
 
 TASK-009 adds guest order lookup using the order reference and exact checkout email, followed by a short-lived session scoped to one order. It presents recorded item snapshots, totals, payment and fulfillment states, safe history, and a masked destination without exposing full contact, address, provider, or diagnostic data. This is lightweight guest verification; email-code ownership verification remains future work.
 
-Refunds and fulfillment administration remain future work for TASK-011. Analytics remains planned for TASK-012.
+TASK-011 provides protected order search and full operational details for ADMIN and STAFF users. Only ADMIN may record fulfillment changes. The supported manual sequence is verified paid `PROCESSING → SHIPPED → DELIVERED`; each transition is concurrency-safe and adds one status event containing the administrator identity. `SHIPPED` means an administrator confirmed physical dispatch, and `DELIVERED` means an administrator recorded delivery manually. Neither state is carrier-verified. Payment exceptions, unpaid orders, and inventory-review orders are locked from fulfillment advancement.
+
+Cancellation, automated or administrative refunds, automatic restocking, carrier tracking, and delivery estimates remain deferred because the current schema and business rules do not support them safely. Analytics remains planned for TASK-012.

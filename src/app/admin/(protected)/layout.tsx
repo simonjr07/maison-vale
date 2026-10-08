@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
 
@@ -6,12 +7,14 @@ import { requireUser } from "@/server/auth/authorization";
 import { signOutAction } from "../actions";
 
 export const instant = false;
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 const navigation = [
   { label: "Overview", href: "/admin" },
   { label: "Products", href: "/admin/products" },
   { label: "Inventory", href: "/admin/inventory" },
   { label: "Categories", href: "/admin/categories" },
+  { label: "Orders", href: "/admin/orders" },
 ];
 
 export default async function ProtectedAdminLayout({ children }: { children: ReactNode }) {
@@ -49,7 +52,7 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
                 </Link>
               </li>
             ))}
-            <li className="px-3 pt-4 text-[10px] uppercase tracking-[0.18em] text-[#25231f]/45">Orders and analytics are planned</li>
+            <li className="px-3 pt-4 text-[10px] uppercase tracking-[0.18em] text-[#25231f]/45">Analytics is planned</li>
           </ul>
         </nav>
         {children}

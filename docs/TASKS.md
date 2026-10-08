@@ -12,7 +12,7 @@
 | TASK-008 | Stripe integration and webhooks | Test-mode payment flow and idempotent events | Verified webhook events drive payment state | Complete |
 | TASK-009 | Orders and public order lookup | Confirmation and privacy-safe lookup | Orders expose minimal information | Complete |
 | TASK-010 | Admin product and inventory management | Admin catalogue and inventory tools | Authorized changes are audited | Complete |
-| TASK-011 | Admin order workflow | Fulfillment workflow | Order transitions are controlled | Planned |
+| TASK-011 | Admin order workflow | Fulfillment workflow | Order transitions are controlled | Complete |
 | TASK-012 | Commerce analytics | Basic admin reporting | Metrics are defined and reproducible | Planned |
 | TASK-013 | Front-end polish, responsive design, and accessibility | Production UI refinement | Responsive and accessibility review passes | Planned |
 | TASK-014 | Security and production hardening | Threat review and safeguards | Security checklist is addressed | Planned |

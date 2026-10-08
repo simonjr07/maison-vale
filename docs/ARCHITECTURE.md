@@ -10,7 +10,7 @@ The `/admin/login` route is public. The route-grouped `/admin` shell is protecte
 
 The route-grouped storefront exposes `/`, `/shop`, `/shop/[slug]`, `/collections/[slug]`, `/cart`, and `/checkout`. UI components call centralized server-only data modules instead of Prisma. Queries select only the fields needed for public presentation, and pure mapping functions produce allow-listed DTOs without database ids, SKUs, raw stock counts, or publication flags. Visibility requires an active, published product in an active category.
 
-Catalogue pages read PostgreSQL at request time. They intentionally do not use a persistent application cache because stock labels are advisory and should reflect current variant records. React request memoization prevents duplicate product queries between metadata and page rendering. Test-mode payment, order creation, public order lookup, and administrative catalogue operations are implemented; order administration and analytics remain deferred.
+Catalogue pages read PostgreSQL at request time. They intentionally do not use a persistent application cache because stock labels are advisory and should reflect current variant records. React request memoization prevents duplicate product queries between metadata and page rendering. Test-mode payment, order creation, public order lookup, administrative catalogue operations, and manual fulfillment administration are implemented; analytics remains deferred.
 
 Variant availability is centralized in the inventory domain and requires an active, published product, an active variant, and positive stock. The catalogue maps that domain result into public labels without exposing quantities. Runtime inventory commands pass through Zod validation and the server-only inventory service. Stock changes and `InventoryMovement` audit rows share a database transaction.
 
@@ -33,6 +33,10 @@ V1 checkout uses deterministic U.S.-only standard shipping: $8 below a $150 merc
 V1 intentionally has no reservation. If stock cannot be committed after Stripe has collected payment, the fulfillment transaction rolls back. A separate durable transaction records the payment as PAID and leaves the order PENDING with `PAID_REQUIRES_INVENTORY_REVIEW`; refund or manual resolution is deferred to the order operations work.
 
 Guest order lookup is a read-only layer over the existing order, item, payment, and status-event snapshots. The lookup endpoint validates the reference/email proof, consumes two HMAC-keyed PostgreSQL rate-limit buckets, and sets a short-lived signed HttpOnly cookie. The dynamic order-details page reads that one-order scope before querying PostgreSQL and maps an allow-listed DTO with masked destination data. It never changes payment, fulfillment, inventory, or webhook state.
+
+The protected admin order workspace reads PostgreSQL at request time and is excluded from indexing. ADMIN and STAFF may inspect order snapshots, full fulfillment contact/address details, verified database payment state, safe operational exception labels, and internal status history. Search uses an authenticated Server Action so customer email is carried in a POST body rather than a URL. Responses and pages are not shared or persistently cached.
+
+Only ADMIN may invoke fulfillment mutations. The order service accepts two transitions: `PROCESSING → SHIPPED` for administrator-confirmed physical dispatch, and `SHIPPED → DELIVERED` for administrator-confirmed delivery. Inside one transaction it re-reads current order/payment state, requires a `PAID` payment and no payment issue, performs a conditional status update, and creates exactly one `OrderStatusEvent`. The conditional update prevents duplicate or stale submissions and cannot race a pending webhook into fulfillment. These mutations never write payment, inventory, totals, order items, or public lookup authorization data.
 
 ## Intended shape
 
