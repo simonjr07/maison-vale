@@ -4,6 +4,8 @@ import { checkProductionConfiguration } from "../src/operations/production-confi
 
 const report = checkProductionConfiguration(process.env, {
   requireStripe: process.argv.includes("--require-stripe"),
+  requireDirectUrl: process.argv.includes("--require-direct-url"),
+  migrationOnly: process.argv.includes("--migration-only"),
 });
 
 for (const warning of report.warnings) console.warn(`Configuration warning: ${warning}`);

@@ -35,6 +35,7 @@ const nextConfig: NextConfig = {
       { source: "/:path*", headers: securityHeaders },
       { source: "/admin/:path*", headers: sensitiveHeaders },
       { source: "/api/:path*", headers: [{ key: "Cache-Control", value: "private, no-store, max-age=0" }] },
+      { source: "/cart", headers: sensitiveHeaders },
       { source: "/checkout/:path*", headers: sensitiveHeaders },
       { source: "/orders/:path*", headers: sensitiveHeaders },
     ];

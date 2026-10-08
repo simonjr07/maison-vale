@@ -16,4 +16,4 @@
 | TASK-012 | Commerce analytics | Basic admin reporting | Metrics are defined and reproducible | Complete |
 | TASK-013 | Front-end polish, responsive design, and accessibility | Production UI refinement and complete product photography | Responsive, imagery, and accessibility review passes | Complete |
 | TASK-014 | Security and production hardening | Threat review and safeguards | Security checklist is addressed | Complete |
-| TASK-015 | Deployment, hosted QA, screenshots, and case study | Vercel/Supabase deployment evidence | Hosted QA and portfolio evidence are complete | Planned |
+| TASK-015 | Deployment, hosted QA, screenshots, and case study | Vercel/Supabase deployment evidence | Hosted QA and portfolio evidence are complete | In progress — external setup required |

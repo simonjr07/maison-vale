@@ -65,6 +65,10 @@
 - Hosted PostgreSQL connections require TLS. Runtime and migration roles should be separated by least privilege, and production configuration is checked without revealing values.
 - Production seeding and production payment reconciliation are prohibited. Remote development seeding, sandbox reconciliation, and production administrator provisioning require explicit, temporary operator gates.
 - Dependency remediation must preserve supported framework and ORM versions. Compatible transitive fixes may be pinned; force-driven major downgrades are not accepted merely to reduce an audit counter.
+- Hosted builds run on Node.js 22 and regenerate the ignored Prisma client before compiling. Database migrations and catalogue seeding are never part of the Vercel build command.
+- The Vercel runtime receives a pooled, least-privilege `DATABASE_URL` and limits each production function pool to one connection. The direct migration credential stays in a controlled operator environment and is not required to generate Prisma Client.
+- Public robots and sitemap routes include only storefront discovery surfaces. Cart, checkout, guest orders, admin, and API routes remain outside indexing.
+- TASK-015 evidence distinguishes local readiness from hosted verification. No live URL, payment, backup, log, browser, or performance claim is published without direct evidence.
 
 ## Unresolved
 

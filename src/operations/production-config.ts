@@ -13,29 +13,34 @@ function hasStrongSecret(value: string | undefined) {
 
 export function checkProductionConfiguration(
   environment: ProductionEnvironment,
-  options: { requireStripe?: boolean } = {},
+  options: { requireStripe?: boolean; requireDirectUrl?: boolean; migrationOnly?: boolean } = {},
 ): ProductionConfigurationReport {
   const blockers: string[] = [];
   const warnings: string[] = [];
   const appUrl = environment.APP_URL?.trim();
 
-  try {
-    const parsed = new URL(appUrl ?? "");
-    if (
-      parsed.protocol !== "https:" ||
-      parsed.pathname !== "/" ||
-      parsed.search ||
-      parsed.hash ||
-      parsed.username ||
-      parsed.password
-    ) {
-      blockers.push("APP_URL must be the canonical HTTPS origin without a path, credentials, query, or fragment.");
+  if (!options.migrationOnly) {
+    try {
+      const parsed = new URL(appUrl ?? "");
+      if (
+        parsed.protocol !== "https:" ||
+        parsed.pathname !== "/" ||
+        parsed.search ||
+        parsed.hash ||
+        parsed.username ||
+        parsed.password
+      ) {
+        blockers.push("APP_URL must be the canonical HTTPS origin without a path, credentials, query, or fragment.");
+      }
+    } catch {
+      blockers.push("APP_URL must be configured as the canonical HTTPS origin.");
     }
-  } catch {
-    blockers.push("APP_URL must be configured as the canonical HTTPS origin.");
   }
 
-  for (const name of ["DATABASE_URL", "DIRECT_URL"] as const) {
+  const databaseNames = options.requireDirectUrl || environment.DIRECT_URL
+    ? (["DATABASE_URL", "DIRECT_URL"] as const)
+    : (["DATABASE_URL"] as const);
+  for (const name of databaseNames) {
     const value = environment[name];
     if (!value) {
       blockers.push(`${name} is required.`);
@@ -47,6 +52,30 @@ export function checkProductionConfiguration(
       blockers.push(`${name} must be a valid TLS-protected PostgreSQL connection string.`);
     }
   }
+  if (
+    options.requireDirectUrl &&
+    environment.DATABASE_URL &&
+    environment.DIRECT_URL &&
+    environment.DATABASE_URL === environment.DIRECT_URL
+  ) {
+    blockers.push("Runtime and migration database connections must use separate endpoints and roles.");
+  }
+  if (environment.DATABASE_URL) {
+    try {
+      const runtimeUrl = new URL(environment.DATABASE_URL);
+      if (
+        runtimeUrl.hostname.endsWith(".pooler.supabase.com") &&
+        runtimeUrl.port === "6543" &&
+        runtimeUrl.searchParams.get("pgbouncer") !== "true"
+      ) {
+        blockers.push("Supabase transaction-pooler DATABASE_URL must include pgbouncer=true.");
+      }
+    } catch {
+      // The general database validation above reports malformed values.
+    }
+  }
+
+  if (options.migrationOnly) return { blockers, warnings };
 
   const secrets = ["AUTH_SECRET", "RATE_LIMIT_SECRET", "ORDER_LOOKUP_SECRET"] as const;
   for (const name of secrets) {

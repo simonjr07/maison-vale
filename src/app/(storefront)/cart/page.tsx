@@ -5,6 +5,7 @@ import { CartView } from "@/components/cart/cart-view";
 export const metadata: Metadata = {
   title: "Cart",
   description: "Review your saved Maison Vale selections.",
+  robots: { index: false, follow: false },
 };
 
 export default function CartPage() {

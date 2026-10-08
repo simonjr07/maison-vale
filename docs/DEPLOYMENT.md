@@ -2,12 +2,12 @@
 
 ## Intended topology
 
-Local development uses Next.js with the PostgreSQL 17 service in `compose.yaml`, exposed on host port 5435. Production remains planned for Vercel, Supabase PostgreSQL, and Stripe.
+Local development uses Next.js with the PostgreSQL 17 service in `compose.yaml`, exposed on host port 5435. The hosted target is Vercel, a separate Supabase PostgreSQL project, and Stripe sandbox. No hosted project, URL, database migration, or webhook delivery has been verified yet.
 
 Likely configuration responsibilities:
 
 - `DATABASE_URL`: runtime application connection used by the PostgreSQL driver adapter.
-- `DIRECT_URL`: direct Prisma CLI and migration connection.
+- `DIRECT_URL`: direct Prisma CLI and migration connection used only in a controlled migration environment, not the Vercel web runtime.
 - `AUTH_SECRET`: server-only session/authentication secret.
 - `RATE_LIMIT_SECRET`: server-only HMAC key for login rate-limit identities.
 - `ORDER_LOOKUP_SECRET`: recommended independent server-only key for guest lookup sessions and proof comparison. When omitted, the application uses domain-separated `AUTH_SECRET` as a compatibility fallback.
@@ -23,9 +23,11 @@ Likely configuration responsibilities:
 
 Production must provide strong, independent `AUTH_SECRET`, `RATE_LIMIT_SECRET`, and `ORDER_LOOKUP_SECRET` values. Rotating `AUTH_SECRET` invalidates administrative sessions; rotating the order lookup secret invalidates short-lived guest lookup sessions. Provision administrative accounts through a controlled one-off environment or local direct database connection, never through a public route. The production application remains Stripe test-mode only; live Stripe keys or live events are rejected.
 
-Run `npm run deployment:check` in the target environment before a release. It validates the canonical HTTPS origin, PostgreSQL TLS parameters, secret length and separation, test-only Stripe configuration, and disabled operator gates without printing values. `DATABASE_URL` should use Supabase's supported pooled runtime endpoint; `DIRECT_URL` should use the direct endpoint for reviewed Prisma migrations. Both non-local URLs must specify `sslmode=require`, `verify-ca`, or `verify-full`.
+Run `npm run deployment:check` in the Vercel runtime environment before a release. It validates the canonical HTTPS origin, runtime PostgreSQL TLS, secret length and separation, test-only Stripe configuration, and disabled operator gates without printing values. Run `npm run deployment:check:migrations` separately wherever migrations are applied; that check also requires a distinct `DIRECT_URL`.
 
-Use separate database roles where the platform permits it. The runtime role needs only the table and sequence access required by normal application reads and writes. The migration role may hold schema-changing privileges and should not be exposed to the web runtime. Never run the development seed against production; the seed command refuses production and requires `ALLOW_REMOTE_SEED=true` for any non-local development database.
+`DATABASE_URL` should use Supabase's transaction pooler on port 6543 with `pgbouncer=true` and `sslmode=require` or stronger. `DIRECT_URL` should use the direct endpoint with TLS for reviewed migrations. If the operator network cannot reach the direct IPv6 endpoint, stop and select a provider-supported migration connection rather than silently running migrations through the web runtime credential.
+
+Use separate database roles where the platform permits it. The runtime role needs only the table and sequence access required by normal application reads and writes. The migration role may hold schema-changing privileges and must not be exposed to the Vercel web runtime. Each production function limits its application-side PostgreSQL pool to one connection; Supavisor provides the server-side transaction pool. Never run the development seed against production; the seed command refuses production and requires `ALLOW_REMOTE_SEED=true` for any non-local development database.
 
 Catalogue management requires no new environment values or storage service. Product images are selected from reviewed, optimized files deployed under `public/catalogue/photography`; adding or replacing an asset requires code review, an update to the asset manifest and admin allow-list, and an idempotent seed run. Confirm ADMIN and STAFF role assignments before hosted QA because STAFF access is intentionally read-only. Production should set `APP_URL` to the canonical HTTPS origin so absolute social metadata resolves correctly.
 
@@ -46,3 +48,73 @@ Production order lookup depends on HTTPS for Secure cookies and on a trusted pro
 Provisioning against a production database requires the explicit temporary `ALLOW_PRODUCTION_ADMIN_PROVISIONING=true` gate plus `ADMIN_EMAIL` and `ADMIN_PASSWORD`. Remove all three values immediately after the one-off command, rotate the credential through an approved process when needed, and verify the account through the protected login flow. The script never prints the password.
 
 The complete release sequence, smoke checks, evidence requirements, and rollback guidance are in [`TASK_015_CHECKLIST.md`](./TASK_015_CHECKLIST.md). A successful local build is not evidence that Vercel, Supabase, DNS, cookies, or Stripe webhook delivery are configured correctly.
+
+## Vercel project settings
+
+Use the Git repository root, the detected Next.js framework preset, Node.js 22, `npm install`, `npm run build`, and the framework-managed output directory. Do not run migrations or seeds in the Vercel build command. The build script regenerates the ignored Prisma client before compiling.
+
+Configure these values in the Vercel dashboard without copying their values into documentation or chat:
+
+| Variable | Scope | Notes |
+|---|---|---|
+| `APP_URL` | Production | Canonical HTTPS origin only. Update after the production domain is known, then redeploy. |
+| `DATABASE_URL` | Production | Least-privilege Supabase transaction-pooler URL with `pgbouncer=true` and TLS. |
+| `AUTH_SECRET` | Production, sensitive | Independent random value of at least 32 characters. |
+| `RATE_LIMIT_SECRET` | Production, sensitive | Independent random value of at least 32 characters. |
+| `ORDER_LOOKUP_SECRET` | Production, sensitive | Independent random value of at least 32 characters. |
+| `STRIPE_SECRET_KEY` | Production, sensitive | Stripe sandbox `sk_test_` key only. |
+| `STRIPE_WEBHOOK_SECRET` | Production, sensitive | Unique `whsec_` from the hosted Dashboard endpoint, added after that endpoint exists. |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Production | Optional `pk_test_` key; current hosted Checkout flow does not require it. |
+| `TRUST_PROXY_HEADERS` | Production | `false` on Vercel. |
+| Operator gates | Production | Leave unset or `false`. |
+
+Do not configure `DIRECT_URL`, `ADMIN_EMAIL`, or `ADMIN_PASSWORD` in the Vercel web runtime. Vercel applies environment changes only to new deployments, so redeploy after changing configuration. Mark server secrets as sensitive where the account plan and environment support it.
+
+## Hosted database sequence
+
+These steps require the database owner and explicit approval before any remote write:
+
+1. Create a dedicated Supabase project in the intended region and review its connection, compute, pooling, SSL-enforcement, and backup settings.
+2. Create or select a least-privilege runtime role and a separate migration role. Record grants without recording passwords.
+3. In a controlled operator shell, set the pooled runtime URL as `DATABASE_URL` and direct migration URL as `DIRECT_URL`. Do not paste either value into chat.
+4. Run `npm run deployment:check:migrations`, `npx prisma migrate status`, and review the output.
+5. With explicit approval, run `npx prisma migrate deploy`. This applies tracked migrations and does not reset the database or generate the client.
+6. Verify migration status and core empty-table counts. Do not fabricate orders, payments, refunds, webhook rows, inventory movements, or analytics.
+7. If the fictional catalogue is required, obtain separate approval for the exact remote seed operation. The current production guard intentionally blocks unattended production seeding; do not bypass it casually.
+8. Provision one administrator through the controlled command only after migrations. Remove provisioning variables and the temporary gate immediately afterward.
+
+Supabase recommends transaction pooling for serverless applications and a direct connection for migrations. Enable provider-side SSL enforcement only during an approved window because changing it briefly restarts the database. Backup availability and point-in-time recovery depend on the selected plan; record the actual setting and do not claim a restore test until one succeeds.
+
+## Stripe hosted webhook
+
+After the verified production HTTPS URL exists:
+
+1. Open Stripe Workbench in a sandbox and create an event destination for the account.
+2. Select the snapshot event `checkout.session.completed` only.
+3. Set the endpoint to `https://HOST/api/stripe/webhook` without a redirect.
+4. Reveal the destination's unique `whsec_` once and enter it directly into the Vercel sensitive environment setting. Do not reuse the Stripe CLI listener secret.
+5. Redeploy, complete one real sandbox Checkout, and confirm Stripe records a successful HTTP delivery.
+6. Compare the redacted application diagnostic, database state, customer confirmation, inventory movement, status history, and admin analytics. Redeliver the same event and confirm no second decrement or transition occurs.
+
+Stripe requires a publicly accessible HTTPS endpoint and raw-body signature verification. A synthetic event creates its own Checkout Session and cannot prove that an earlier customer Session was finalized.
+
+## Read-only hosted smoke check
+
+After deployment, run:
+
+```bash
+npm run qa:hosted -- --url=https://HOST
+```
+
+The command verifies public routes, robots and sitemap boundaries, production headers, unauthenticated admin redirection, all 25 optimized image assets, and rejection of missing-Origin requests. It performs no login, checkout, payment, order lookup, mutation, migration, seed, or reconciliation. Complete the remaining manual checks in the TASK-015 checklist.
+
+## Primary platform references
+
+- [Vercel build configuration](https://vercel.com/docs/builds/configure-a-build)
+- [Vercel environment variables](https://vercel.com/docs/environment-variables)
+- [Supabase connection methods](https://supabase.com/docs/guides/database/connecting-to-postgres)
+- [Supabase pooling and limits](https://supabase.com/docs/guides/database/connecting-to-postgres/pooling-and-limits)
+- [Prisma with PgBouncer and Supavisor](https://www.prisma.io/docs/orm/v7/prisma-client/setup-and-configuration/databases-connections/pgbouncer)
+- [Prisma production migrations](https://docs.prisma.io/docs/cli/migrate/deploy)
+- [Stripe webhook endpoints](https://docs.stripe.com/webhooks)
+- [Stripe sandbox testing](https://docs.stripe.com/testing)

@@ -16,7 +16,33 @@ const validEnvironment = {
 
 describe("production configuration", () => {
   it("accepts an isolated HTTPS, TLS, sandbox-only configuration", () => {
-    expect(checkProductionConfiguration(validEnvironment, { requireStripe: true })).toEqual({ blockers: [], warnings: [] });
+    expect(checkProductionConfiguration(validEnvironment, { requireStripe: true, requireDirectUrl: true })).toEqual({ blockers: [], warnings: [] });
+  });
+
+  it("does not require migration credentials in the hosted web runtime", () => {
+    expect(checkProductionConfiguration({ ...validEnvironment, DIRECT_URL: undefined }, { requireStripe: true })).toEqual({ blockers: [], warnings: [] });
+  });
+
+  it("requires distinct direct credentials in a migration environment", () => {
+    const missing = checkProductionConfiguration(
+      { ...validEnvironment, DIRECT_URL: undefined },
+      { requireDirectUrl: true, migrationOnly: true },
+    );
+    expect(missing.blockers.join(" ")).toMatch(/DIRECT_URL is required/);
+
+    const shared = checkProductionConfiguration(
+      { ...validEnvironment, DIRECT_URL: validEnvironment.DATABASE_URL },
+      { requireDirectUrl: true, migrationOnly: true },
+    );
+    expect(shared.blockers.join(" ")).toMatch(/separate endpoints and roles/);
+  });
+
+  it("requires Prisma pooler compatibility on Supabase transaction endpoints", () => {
+    const report = checkProductionConfiguration({
+      ...validEnvironment,
+      DATABASE_URL: "postgresql://runtime:secret@aws-0-region.pooler.supabase.com:6543/postgres?sslmode=require",
+    });
+    expect(report.blockers.join(" ")).toMatch(/pgbouncer=true/);
   });
 
   it("rejects live Stripe keys, weak shared secrets, and unsafe operator gates", () => {

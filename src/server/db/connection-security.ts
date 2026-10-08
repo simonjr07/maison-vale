@@ -23,3 +23,17 @@ export function assertSecureDatabaseConnection(
     throw new Error("Hosted production PostgreSQL requires TLS through sslmode.");
   }
 }
+
+export function getRuntimePoolOptions(
+  connectionString: string,
+  environment: { NODE_ENV?: string } = process.env,
+) {
+  assertSecureDatabaseConnection(connectionString, environment);
+
+  return {
+    connectionString,
+    max: environment.NODE_ENV === "production" ? 1 : 10,
+    connectionTimeoutMillis: 10_000,
+    idleTimeoutMillis: 30_000,
+  };
+}
