@@ -31,6 +31,14 @@ export function SiteHeader() {
               </Link>
             </li>
             <li>
+              <Link
+                className="inline-flex min-h-11 items-center px-2 text-[13px] transition-colors hover:text-[#9a5f42] sm:px-3 sm:text-sm"
+                href="/orders"
+              >
+                Orders
+              </Link>
+            </li>
+            <li>
               <CartLink />
             </li>
           </ul>

@@ -4,6 +4,7 @@ import type {
   CheckoutSummaryDto,
   PreparedCheckoutDto,
 } from "@/checkout/checkout-domain";
+import type { CheckoutSessionResult } from "@/payment/payment-domain";
 
 type CheckoutErrorPayload = {
   error?: string;
@@ -45,4 +46,10 @@ export function requestCheckoutQuote(cart: CartPayload, signal?: AbortSignal) {
 
 export function requestPreparedCheckout(input: CheckoutDetailsInput) {
   return postCheckout<PreparedCheckoutDto>("/api/checkout/prepare", input);
+}
+
+export function requestStripeCheckout(
+  input: CheckoutDetailsInput & { attemptToken: string },
+) {
+  return postCheckout<CheckoutSessionResult>("/api/stripe/checkout-session", input);
 }

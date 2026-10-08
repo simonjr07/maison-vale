@@ -39,4 +39,8 @@ TASK-006 provides a browser-persisted guest cart, variant selection, quantity up
 
 TASK-007 provides a U.S.-only guest checkout form and a stateless server preparation boundary. PostgreSQL prices and availability are re-resolved independently from the cart page. Standard shipping is $8 below $150 and free at or above $150; automated tax remains explicitly unavailable and authoritative tax is $0. Validation creates no order, payment, customer profile, reservation, inventory movement, or stored address.
 
-Payment, order creation and lookup, and operational catalogue management remain future work.
+TASK-008 creates pending order, item, and payment snapshots before redirecting to card-only Stripe-hosted Checkout in test mode. Signed webhooks are payment authority. Successful paid events atomically commit inventory and advance the order; duplicate delivery is harmless. With no reservation, paid orders that can no longer commit stock remain pending with an explicit manual-review condition rather than entering fulfillment or reporting a false payment failure.
+
+TASK-009 adds guest order lookup using the order reference and exact checkout email, followed by a short-lived session scoped to one order. It presents recorded item snapshots, totals, payment and fulfillment states, safe history, and a masked destination without exposing full contact, address, provider, or diagnostic data. This is lightweight guest verification; email-code ownership verification remains future work.
+
+Refunds, fulfillment administration, and operational catalogue management remain future work for TASK-010 and TASK-011.

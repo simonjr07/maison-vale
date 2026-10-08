@@ -90,19 +90,19 @@ model Product {
 }
 
 model ProductVariant {
-  id                  String      @id @default(uuid()) @db.Uuid
-  productId           String      @db.Uuid
-  sku                 String      @unique @db.VarChar(80)
-  name                String      @db.VarChar(140)
-  size                String?     @db.VarChar(40)
-  color               String?     @db.VarChar(80)
+  id                  String              @id @default(uuid()) @db.Uuid
+  productId           String              @db.Uuid
+  sku                 String              @unique @db.VarChar(80)
+  name                String              @db.VarChar(140)
+  size                String?             @db.VarChar(40)
+  color               String?             @db.VarChar(80)
   priceCents          Int
   compareAtPriceCents Int?
-  stockQuantity       Int         @default(0)
-  active              Boolean     @default(true)
-  createdAt           DateTime    @default(now()) @db.Timestamptz(3)
-  updatedAt           DateTime    @updatedAt @db.Timestamptz(3)
-  product             Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  stockQuantity       Int                 @default(0)
+  active              Boolean             @default(true)
+  createdAt           DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime            @updatedAt @db.Timestamptz(3)
+  product             Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
   orderItems          OrderItem[]
   inventoryMovements  InventoryMovement[]
 
@@ -137,27 +137,32 @@ model ProductImage {
 }
 
 model Order {
-  id                 String             @id @default(uuid()) @db.Uuid
-  orderNumber        String             @unique @db.VarChar(40)
-  email              String             @db.VarChar(320)
-  status             OrderStatus        @default(PENDING)
-  currency           Currency           @default(USD)
-  subtotalCents      Int
-  shippingCents      Int
-  taxCents           Int
-  totalCents         Int
-  shippingName       String             @db.VarChar(160)
-  shippingLine1      String             @db.VarChar(200)
-  shippingLine2      String?            @db.VarChar(200)
-  shippingCity       String             @db.VarChar(120)
-  shippingRegion     String?            @db.VarChar(120)
-  shippingPostalCode String             @db.VarChar(32)
-  shippingCountry    String             @db.Char(2)
-  createdAt          DateTime           @default(now()) @db.Timestamptz(3)
-  updatedAt          DateTime           @updatedAt @db.Timestamptz(3)
-  items              OrderItem[]
-  payments           Payment[]
-  statusEvents       OrderStatusEvent[]
+  id                  String             @id @default(uuid()) @db.Uuid
+  orderNumber         String             @unique @db.VarChar(40)
+  email               String             @db.VarChar(320)
+  status              OrderStatus        @default(PENDING)
+  currency            Currency           @default(USD)
+  subtotalCents       Int
+  shippingCents       Int
+  taxCents            Int
+  totalCents          Int
+  shippingName        String             @db.VarChar(160)
+  shippingLine1       String             @db.VarChar(200)
+  shippingLine2       String?            @db.VarChar(200)
+  shippingCity        String             @db.VarChar(120)
+  shippingRegion      String?            @db.VarChar(120)
+  shippingPostalCode  String             @db.VarChar(32)
+  shippingCountry     String             @db.Char(2)
+  checkoutAttemptHash String?            @unique @db.Char(64)
+  checkoutFingerprint String?            @db.Char(64)
+  paymentIssueCode    String?            @db.VarChar(80)
+  paymentIssueMessage String?            @db.Text
+  paymentIssueAt      DateTime?          @db.Timestamptz(3)
+  createdAt           DateTime           @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime           @updatedAt @db.Timestamptz(3)
+  items               OrderItem[]
+  payments            Payment[]
+  statusEvents        OrderStatusEvent[]
 
   @@index([status, createdAt])
   @@index([email, createdAt])
@@ -182,17 +187,22 @@ model OrderItem {
 }
 
 model Payment {
-  id                String          @id @default(uuid()) @db.Uuid
-  orderId           String          @db.Uuid
-  provider          PaymentProvider
-  providerPaymentId String?         @db.VarChar(255)
-  status            PaymentStatus   @default(PENDING)
-  amountCents       Int
-  currency          Currency        @default(USD)
-  createdAt         DateTime        @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime        @updatedAt @db.Timestamptz(3)
-  order             Order           @relation(fields: [orderId], references: [id], onDelete: Restrict)
-  refunds           Refund[]
+  id                        String          @id @default(uuid()) @db.Uuid
+  orderId                   String          @db.Uuid
+  provider                  PaymentProvider
+  providerPaymentId         String?         @db.VarChar(255)
+  providerCheckoutSessionId String?         @unique @db.VarChar(255)
+  providerAmountCents       Int?
+  providerCurrency          String?         @db.VarChar(3)
+  failureCode               String?         @db.VarChar(80)
+  failureMessage            String?         @db.Text
+  status                    PaymentStatus   @default(PENDING)
+  amountCents               Int
+  currency                  Currency        @default(USD)
+  createdAt                 DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt                 DateTime        @updatedAt @db.Timestamptz(3)
+  order                     Order           @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  refunds                   Refund[]
 
   @@unique([provider, providerPaymentId])
   @@index([orderId, createdAt])
@@ -228,6 +238,7 @@ model StripeWebhookEvent {
   stripeEventId String    @unique @db.VarChar(255)
   eventType     String    @db.VarChar(160)
   processedAt   DateTime? @db.Timestamptz(3)
+  outcomeCode   String?   @db.VarChar(80)
   createdAt     DateTime  @default(now()) @db.Timestamptz(3)
 
   @@index([processedAt, createdAt])
