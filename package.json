@@ -34,6 +34,8 @@
     "admin:provision": "node --experimental-strip-types scripts/provision-admin.mjs",
     "deployment:check": "node --experimental-strip-types scripts/check-production-config.mjs --require-stripe",
     "deployment:check:migrations": "node --experimental-strip-types scripts/check-production-config.mjs --require-direct-url --migration-only",
+    "deployment:migrations:status": "node --experimental-strip-types scripts/run-production-migrations.mjs status",
+    "deployment:migrations:deploy": "node --experimental-strip-types scripts/run-production-migrations.mjs deploy",
     "deployment:assets": "node --experimental-strip-types scripts/verify-deployment-assets.mjs",
     "qa:hosted": "node --experimental-strip-types scripts/verify-hosted-deployment.mjs",
     "rate-limits:cleanup": "node --experimental-strip-types scripts/cleanup-rate-limits.mjs"

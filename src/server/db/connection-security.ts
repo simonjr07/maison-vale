@@ -2,6 +2,16 @@ export function isLocalDatabaseHost(hostname: string) {
   return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
 }
 
+export function isNeonDatabaseHost(hostname: string) {
+  return hostname.toLowerCase().endsWith(".neon.tech");
+}
+
+export function isNeonPooledHost(hostname: string) {
+  const normalizedHostname = hostname.toLowerCase();
+  return isNeonDatabaseHost(normalizedHostname)
+    && normalizedHostname.split(".", 1)[0].endsWith("-pooler");
+}
+
 export function assertSecureDatabaseConnection(
   connectionString: string,
   environment: { NODE_ENV?: string } = process.env,
@@ -29,11 +39,13 @@ export function getRuntimePoolOptions(
   environment: { NODE_ENV?: string } = process.env,
 ) {
   assertSecureDatabaseConnection(connectionString, environment);
+  const url = new URL(connectionString);
 
   return {
     connectionString,
     max: environment.NODE_ENV === "production" ? 1 : 10,
     connectionTimeoutMillis: 10_000,
     idleTimeoutMillis: 30_000,
+    enableChannelBinding: url.searchParams.get("channel_binding")?.toLowerCase() === "require",
   };
 }

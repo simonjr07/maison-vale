@@ -27,7 +27,7 @@ Administrative users receive searchable catalogue, inventory, order, and analyti
 - Auth.js credentials sessions and bcrypt password hashing
 - Stripe-hosted Checkout in test mode with raw-body webhook verification
 - Vitest, PostgreSQL integration scripts, ESLint, and TypeScript
-- Vercel deployment target with Supabase PostgreSQL and Supavisor pooling
+- Vercel deployment target with Neon PostgreSQL and Neon connection pooling
 
 ## Architecture
 
@@ -36,7 +36,7 @@ flowchart LR
     Browser[Storefront and admin browser]
     App[Next.js server components, actions, and route handlers]
     Domain[Catalogue, checkout, payment, order, and inventory services]
-    Pool[Supabase transaction pooler]
+    Pool[Neon pooled endpoint]
     DB[(PostgreSQL)]
     Stripe[Stripe sandbox Checkout]
     Webhook[Signed webhook endpoint]
@@ -76,13 +76,13 @@ Administrative sessions contain minimal identity data and expire after eight hou
 
 The production boundary includes byte-counted body limits, canonical Origin checks, trusted Vercel proxy handling, pair and source-wide rate limits, private cache policy, noindex coverage, security headers, PostgreSQL TLS enforcement, and explicit gates around operational scripts.
 
-Runtime database traffic is designed for a pooled Supabase endpoint with one application-side connection per production function. Prisma migrations use a distinct direct credential in a controlled operator environment; the migration credential is not required by the deployed web runtime. Production builds regenerate the ignored Prisma client before compiling.
+Runtime database traffic is designed for Neon's `-pooler` endpoint with one application-side connection per production function. Prisma migrations use the matching unpooled direct URL in a controlled operator environment; the migration credential is not required by the deployed web runtime. Production builds regenerate the ignored Prisma client before compiling.
 
 ## Testing
 
 The automated suite combines focused unit tests with PostgreSQL integration scenarios. Coverage includes input normalization, authorization, public DTO boundaries, inventory races, stale carts, authoritative checkout totals, payment idempotency, rollback, guest-order isolation, admin workflows, reporting definitions, deployment configuration, and SEO boundaries.
 
-Local verification includes lint, typecheck, Prisma validation and migration status, unit tests, ten integration suites, an optimized production build, dependency audits, tracked-secret scanning, reviewed image validation, and whitespace checks. Hosted verification remains separate because local tests cannot prove Vercel headers, Supabase roles and backups, Stripe delivery, secure cookies, or real browser behavior.
+Local verification includes lint, typecheck, Prisma validation and migration status, unit tests, ten integration suites, an optimized production build, dependency audits, tracked-secret scanning, reviewed image validation, and whitespace checks. Hosted verification remains separate because local tests cannot prove Vercel headers, Neon roles and backups, Stripe delivery, secure cookies, or real browser behavior.
 
 ## Challenges and decisions
 

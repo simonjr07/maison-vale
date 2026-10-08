@@ -2,7 +2,7 @@
 
 ## Intended topology
 
-Local development uses Next.js with the PostgreSQL 17 service in `compose.yaml`, exposed on host port 5435. The hosted target is Vercel, a separate Supabase PostgreSQL project, and Stripe sandbox. No hosted project, URL, database migration, or webhook delivery has been verified yet.
+Local development uses Next.js with the PostgreSQL 17 service in `compose.yaml`, exposed on host port 5435. The hosted target is Vercel, the existing Neon PostgreSQL project, and Stripe sandbox. The Neon project and connection strings exist, but no hosted connection, migration, deployment URL, or webhook delivery has been verified.
 
 Likely configuration responsibilities:
 
@@ -25,9 +25,11 @@ Production must provide strong, independent `AUTH_SECRET`, `RATE_LIMIT_SECRET`, 
 
 Run `npm run deployment:check` in the Vercel runtime environment before a release. It validates the canonical HTTPS origin, runtime PostgreSQL TLS, secret length and separation, test-only Stripe configuration, and disabled operator gates without printing values. Run `npm run deployment:check:migrations` separately wherever migrations are applied; that check also requires a distinct `DIRECT_URL`.
 
-`DATABASE_URL` should use Supabase's transaction pooler on port 6543 with `pgbouncer=true` and `sslmode=require` or stronger. `DIRECT_URL` should use the direct endpoint with TLS for reviewed migrations. If the operator network cannot reach the direct IPv6 endpoint, stop and select a provider-supported migration connection rather than silently running migrations through the web runtime credential.
+`DATABASE_URL` uses the pooled URL copied from Neon's Connection Details panel. Its hostname has the form `ep-<endpoint>-pooler.<region>.<provider>.neon.tech`, normally on port 5432, and must retain `sslmode=require` or a stronger supported mode. Preserve provider-supplied parameters such as `channel_binding=require`. Do not append Supabase-specific port 6543 or `pgbouncer=true` settings.
 
-Use separate database roles where the platform permits it. The runtime role needs only the table and sequence access required by normal application reads and writes. The migration role may hold schema-changing privileges and must not be exposed to the Vercel web runtime. Each production function limits its application-side PostgreSQL pool to one connection; Supavisor provides the server-side transaction pool. Never run the development seed against production; the seed command refuses production and requires `ALLOW_REMOTE_SEED=true` for any non-local development database.
+`DIRECT_URL` uses the matching unpooled Neon URL for reviewed Prisma CLI operations. Its hostname has the same endpoint identity without the `-pooler` suffix and must retain its TLS parameters. Prisma 7 reads this value through `datasource.url` in `prisma.config.ts`. The Vercel build does not need `DIRECT_URL`: client generation uses a deliberately unreachable fallback, while any database-accessing Prisma command fails closed unless the operator supplies `DIRECT_URL`.
+
+Use the narrowest practical Neon role grants. The runtime role needs only the table and sequence access required by normal application reads and writes; a migration role may hold schema-changing privileges when separate credentials are available. Regardless of whether Neon issued the same role in both saved URLs, the unpooled migration credential must not be exposed to the Vercel web runtime. Each production function limits its application-side `pg` pool to one connection, while Neon's pooled endpoint handles server-side transaction pooling. Never run the development seed against production; the seed command refuses production and requires `ALLOW_REMOTE_SEED=true` for any non-local development database.
 
 Catalogue management requires no new environment values or storage service. Product images are selected from reviewed, optimized files deployed under `public/catalogue/photography`; adding or replacing an asset requires code review, an update to the asset manifest and admin allow-list, and an idempotent seed run. Confirm ADMIN and STAFF role assignments before hosted QA because STAFF access is intentionally read-only. Production should set `APP_URL` to the canonical HTTPS origin so absolute social metadata resolves correctly.
 
@@ -47,7 +49,7 @@ Production order lookup depends on HTTPS for Secure cookies and on a trusted pro
 
 Provisioning against a production database requires the explicit temporary `ALLOW_PRODUCTION_ADMIN_PROVISIONING=true` gate plus `ADMIN_EMAIL` and `ADMIN_PASSWORD`. Remove all three values immediately after the one-off command, rotate the credential through an approved process when needed, and verify the account through the protected login flow. The script never prints the password.
 
-The complete release sequence, smoke checks, evidence requirements, and rollback guidance are in [`TASK_015_CHECKLIST.md`](./TASK_015_CHECKLIST.md). A successful local build is not evidence that Vercel, Supabase, DNS, cookies, or Stripe webhook delivery are configured correctly.
+The complete release sequence, smoke checks, evidence requirements, and rollback guidance are in [`TASK_015_CHECKLIST.md`](./TASK_015_CHECKLIST.md). A successful local build is not evidence that Vercel, Neon, DNS, cookies, or Stripe webhook delivery are configured correctly.
 
 ## Vercel project settings
 
@@ -58,7 +60,7 @@ Configure these values in the Vercel dashboard without copying their values into
 | Variable | Scope | Notes |
 |---|---|---|
 | `APP_URL` | Production | Canonical HTTPS origin only. Update after the production domain is known, then redeploy. |
-| `DATABASE_URL` | Production | Least-privilege Supabase transaction-pooler URL with `pgbouncer=true` and TLS. |
+| `DATABASE_URL` | Production | Neon pooled URL with a `-pooler` hostname and provider-supplied TLS parameters. Store as a Vercel Secret. |
 | `AUTH_SECRET` | Production, sensitive | Independent random value of at least 32 characters. |
 | `RATE_LIMIT_SECRET` | Production, sensitive | Independent random value of at least 32 characters. |
 | `ORDER_LOOKUP_SECRET` | Production, sensitive | Independent random value of at least 32 characters. |
@@ -70,20 +72,21 @@ Configure these values in the Vercel dashboard without copying their values into
 
 Do not configure `DIRECT_URL`, `ADMIN_EMAIL`, or `ADMIN_PASSWORD` in the Vercel web runtime. Vercel applies environment changes only to new deployments, so redeploy after changing configuration. Mark server secrets as sensitive where the account plan and environment support it.
 
-## Hosted database sequence
+## Neon database sequence
 
 These steps require the database owner and explicit approval before any remote write:
 
-1. Create a dedicated Supabase project in the intended region and review its connection, compute, pooling, SSL-enforcement, and backup settings.
-2. Create or select a least-privilege runtime role and a separate migration role. Record grants without recording passwords.
-3. In a controlled operator shell, set the pooled runtime URL as `DATABASE_URL` and direct migration URL as `DIRECT_URL`. Do not paste either value into chat.
-4. Run `npm run deployment:check:migrations`, `npx prisma migrate status`, and review the output.
-5. With explicit approval, run `npx prisma migrate deploy`. This applies tracked migrations and does not reset the database or generate the client.
-6. Verify migration status and core empty-table counts. Do not fabricate orders, payments, refunds, webhook rows, inventory movements, or analytics.
-7. If the fictional catalogue is required, obtain separate approval for the exact remote seed operation. The current production guard intentionally blocks unattended production seeding; do not bypass it casually.
-8. Provision one administrator through the controlled command only after migrations. Remove provisioning variables and the temporary gate immediately afterward.
+1. In the existing Neon project, confirm the intended branch, database, region, compute, pooled connection, direct connection, role grants, TLS parameters, and backup/restore options. Do not expose either saved URL.
+2. In a controlled operator shell, set the saved pooled URL as `DATABASE_URL` and the saved unpooled URL as `DIRECT_URL`. Do not store either value in a tracked file, command argument, report, or chat.
+3. Confirm `DATABASE_URL` contains the Neon `-pooler` hostname and `DIRECT_URL` does not. Both must identify the intended hosted database, request TLS, and differ from the local Docker URLs.
+4. Run `npm run deployment:check:migrations`. This validates URL shape and TLS without printing either value and rejects localhost, identical URLs, a non-pooled Neon runtime URL, or a pooled Neon migration URL.
+5. Run `npm run deployment:migrations:status` and review its redacted output. The wrapper repeats the fail-closed checks before invoking Prisma. Prisma 7 obtains the migration target from `DIRECT_URL` through `prisma.config.ts`; stop if the database identity or status is unexpected.
+6. After explicit approval for the five reviewed migrations, run `npm run deployment:migrations:deploy`. Do not use `migrate dev`, `db push`, reset, or seed. The guarded command applies tracked migrations without resetting data.
+7. Run `npm run deployment:migrations:status` again and verify that all five migrations are applied. Inspect only the expected schema and empty-table state; do not fabricate orders, payments, refunds, webhook rows, inventory movements, or analytics.
+8. If the fictional catalogue is required, obtain separate approval for the exact remote seed operation. The current production guard intentionally blocks unattended production seeding; do not bypass it casually.
+9. Provision one administrator through the controlled command only after migrations. Remove provisioning variables and the temporary gate immediately afterward.
 
-Supabase recommends transaction pooling for serverless applications and a direct connection for migrations. Enable provider-side SSL enforcement only during an approved window because changing it briefly restarts the database. Backup availability and point-in-time recovery depend on the selected plan; record the actual setting and do not claim a restore test until one succeeds.
+Neon identifies pooled connections with `-pooler` in the hostname and supports prepared statements through its current PgBouncer configuration; Prisma does not require `pgbouncer=true` for this endpoint. Maison Vale still uses the separate direct URL for controlled migrations to keep runtime and schema-change credentials operationally separate. Backup availability, restore windows, scale-to-zero behavior, and point-in-time recovery depend on the selected Neon plan and settings; record the actual configuration and do not claim a restore test until one succeeds.
 
 ## Stripe hosted webhook
 
@@ -112,9 +115,10 @@ The command verifies public routes, robots and sitemap boundaries, production he
 
 - [Vercel build configuration](https://vercel.com/docs/builds/configure-a-build)
 - [Vercel environment variables](https://vercel.com/docs/environment-variables)
-- [Supabase connection methods](https://supabase.com/docs/guides/database/connecting-to-postgres)
-- [Supabase pooling and limits](https://supabase.com/docs/guides/database/connecting-to-postgres/pooling-and-limits)
-- [Prisma with PgBouncer and Supavisor](https://www.prisma.io/docs/orm/v7/prisma-client/setup-and-configuration/databases-connections/pgbouncer)
+- [Neon connection pooling](https://neon.com/docs/connect/connection-pooling)
+- [Neon and Prisma](https://neon.com/docs/guides/prisma)
+- [Prisma 7 PostgreSQL configuration](https://www.prisma.io/docs/orm/v7/core-concepts/supported-databases/postgresql)
+- [Prisma 7 configuration reference](https://www.prisma.io/docs/orm/v7/reference/prisma-config-reference)
 - [Prisma production migrations](https://docs.prisma.io/docs/cli/migrate/deploy)
 - [Stripe webhook endpoints](https://docs.stripe.com/webhooks)
 - [Stripe sandbox testing](https://docs.stripe.com/testing)

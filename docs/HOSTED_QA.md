@@ -25,9 +25,9 @@ These are local results only. They do not change any pending hosted status below
 | Item | Status | Evidence |
 |---|---|---|
 | Public Vercel URL | Pending | No deployment URL verified. |
-| Supabase project and region | Pending | Account-owned setup required. |
+| Neon project and region | Created, unverified | Connection values are saved by the owner; no connection or write was attempted. |
 | Pooled runtime role and connection | Pending | Must be verified without recording the connection value. |
-| Direct migration role | Pending | Must remain outside the Vercel web runtime. |
+| Direct migration connection | Pending | Must remain outside the Vercel web runtime. |
 | Migration deployment | Pending | Requires explicit approval before remote write. |
 | Fictional catalogue bootstrap | Pending | Requires separate approval; no fabricated commerce records permitted. |
 | Stripe sandbox endpoint | Pending | Create after the canonical HTTPS URL exists. |

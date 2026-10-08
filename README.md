@@ -6,7 +6,7 @@ Maison Vale is a fictional premium lifestyle e-commerce portfolio application. T
 
 ## Technology
 
-Next.js 16, React 19, TypeScript, Tailwind CSS, PostgreSQL 17, Prisma ORM 7, Auth.js, bcrypt, Stripe Checkout, Vitest, ESLint, GitHub Actions, Vercel, and Supabase.
+Next.js 16, React 19, TypeScript, Tailwind CSS, PostgreSQL 17, Prisma ORM 7, Auth.js, bcrypt, Stripe Checkout, Vitest, ESLint, GitHub Actions, Vercel, and Neon.
 
 ## Current foundation
 
@@ -46,7 +46,7 @@ Next.js 16, React 19, TypeScript, Tailwind CSS, PostgreSQL 17, Prisma ORM 7, Aut
 flowchart LR
     Browser[Storefront and admin browser] --> Next[Next.js request boundaries]
     Next --> Services[Commerce and authorization services]
-    Services --> Pool[Supabase pooled runtime connection]
+    Services --> Pool[Neon pooled runtime connection]
     Pool --> DB[(PostgreSQL)]
     Next --> Stripe[Stripe sandbox Checkout]
     Stripe --> Webhook[Signed idempotent webhook]
@@ -106,7 +106,7 @@ There are no public demo administrator credentials. A hosted portfolio should pr
 
 ## Deployment and hosted QA
 
-The target is Vercel with a separate Supabase PostgreSQL database and Stripe sandbox. Runtime traffic uses a TLS-protected pooled connection with a least-privilege application role. Prisma migrations use a separate direct credential from a controlled operator environment; the direct migration credential should not be configured in the Vercel web runtime.
+The target is Vercel with Neon PostgreSQL and Stripe sandbox. Runtime traffic uses Neon's TLS-protected `-pooler` endpoint with a bounded application pool. Prisma migrations use the unpooled direct URL from a controlled operator environment; the direct migration credential is not configured in the Vercel web runtime.
 
 ```bash
 npm run deployment:check
