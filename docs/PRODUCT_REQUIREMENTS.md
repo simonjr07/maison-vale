@@ -33,7 +33,11 @@ Preliminary order lifecycle: pending payment → paid/fulfillment pending → pr
 
 TASK-004 provides public product and category browsing, product details, ordered images, honest variant pricing, and advisory availability labels. Public visibility requires active and published products in active categories. Availability is not a reservation and must be validated again when checkout is implemented.
 
-TASK-005 makes variant stock authoritative through validated server-side mutations, atomic sufficient-stock decrements, and transactional movement history. Cart additions will not reserve stock; checkout must revalidate purchasability and use the inventory service.
+TASK-005 makes variant stock authoritative through validated server-side mutations, atomic sufficient-stock decrements, and transactional movement history. Cart additions do not reserve stock; checkout revalidates purchasability and uses the inventory service.
+
+TASK-010 provides searchable, paginated product operations; product and variant create/edit/archive flows; curated local image selection; safe category management; and concurrency-aware stock setting with movement history. ADMIN users may mutate catalogue state, while STAFF users receive read-only operational visibility. Archival preserves order and inventory history, and publication changes flow through the same storefront visibility rules used by public queries.
+
+Product details present variant-aware availability with exact counts only when ten or fewer units remain. Sold-out variants remain visible for clarity but cannot be added. Successful additions stay on the product page and provide an accessible `Added to bag` confirmation with a direct bag link. These messages are advisory; cart resolution and checkout independently validate current stock.
 
 TASK-006 provides a browser-persisted guest cart, variant selection, quantity updates, removal, current server-resolved pricing, and clear stale-item handling. The cart is a convenience layer: it stores no authoritative price or stock value and does not reserve inventory.
 
@@ -43,4 +47,4 @@ TASK-008 creates pending order, item, and payment snapshots before redirecting t
 
 TASK-009 adds guest order lookup using the order reference and exact checkout email, followed by a short-lived session scoped to one order. It presents recorded item snapshots, totals, payment and fulfillment states, safe history, and a masked destination without exposing full contact, address, provider, or diagnostic data. This is lightweight guest verification; email-code ownership verification remains future work.
 
-Refunds, fulfillment administration, and operational catalogue management remain future work for TASK-010 and TASK-011.
+Refunds and fulfillment administration remain future work for TASK-011. Analytics remains planned for TASK-012.

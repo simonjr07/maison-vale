@@ -1,6 +1,7 @@
 import "server-only";
 
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import type { UserRole } from "@/generated/prisma/enums";
 
 import { auth } from "@/auth";
@@ -9,6 +10,7 @@ import { db } from "@/server/db/client";
 import { assertRole } from "./permissions";
 
 export async function requireUser() {
+  await connection();
   const session = await auth();
   const userId = session?.user?.id;
 

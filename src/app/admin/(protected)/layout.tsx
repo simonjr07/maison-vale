@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 
 import { requireUser } from "@/server/auth/authorization";
 
@@ -6,7 +7,12 @@ import { signOutAction } from "../actions";
 
 export const instant = false;
 
-const navigation = ["Overview", "Products", "Inventory", "Orders", "Analytics"];
+const navigation = [
+  { label: "Overview", href: "/admin" },
+  { label: "Products", href: "/admin/products" },
+  { label: "Inventory", href: "/admin/inventory" },
+  { label: "Categories", href: "/admin/categories" },
+];
 
 export default async function ProtectedAdminLayout({ children }: { children: ReactNode }) {
   const user = await requireUser();
@@ -36,14 +42,14 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
       <div className="mx-auto grid max-w-7xl gap-8 px-6 py-8 sm:px-10 lg:grid-cols-[220px_1fr] lg:py-12">
         <nav aria-label="Admin navigation" className="border-b border-[#25231f]/12 pb-6 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-8">
           <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-1">
-            {navigation.map((item, index) => (
-              <li key={item}>
-                <div className={`flex items-center justify-between px-3 py-2.5 text-sm ${index === 0 ? "bg-white font-medium shadow-sm" : "text-[#25231f]/55"}`}>
-                  <span>{item}</span>
-                  {index > 0 ? <span className="text-[10px] uppercase tracking-wider">Planned</span> : null}
-                </div>
+            {navigation.map((item) => (
+              <li key={item.href}>
+                <Link className="block px-3 py-2.5 text-sm font-medium transition hover:bg-white hover:shadow-sm" href={item.href}>
+                  {item.label}
+                </Link>
               </li>
             ))}
+            <li className="px-3 pt-4 text-[10px] uppercase tracking-[0.18em] text-[#25231f]/45">Orders and analytics are planned</li>
           </ul>
         </nav>
         {children}

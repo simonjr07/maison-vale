@@ -15,6 +15,7 @@ Maison Vale is a fictional premium lifestyle e-commerce portfolio application. T
 - Database-backed, HMAC-keyed login attempt limiting
 - Public storefront at `/`, `/shop`, `/shop/[slug]`, and `/collections/[slug]`
 - Server-rendered catalogue queries with active and published visibility rules
+- Variant-aware low-stock and sold-out messaging with accessible add-to-bag confirmation
 - Honest variant pricing, advisory availability, ordered product images, and safe public DTOs
 - Variant-level inventory authority with validated, concurrency-safe stock mutations
 - Transactional inventory movement history for restocks, corrections, and future order activity
@@ -23,7 +24,9 @@ Maison Vale is a fictional premium lifestyle e-commerce portfolio application. T
 - Stripe-hosted test-mode Checkout with order-before-payment snapshots
 - Raw-body signed webhooks with durable idempotency and transactional inventory finalization
 - Privacy-aware guest order lookup with masked details and short-lived scoped access
-- No public registration, refunds, or operational admin modules yet
+- Searchable administrative product, variant, category, image, and inventory tools
+- ADMIN-only catalogue mutations, STAFF read access, archival workflows, and audited stock changes
+- No public registration, refunds, order administration, or analytics yet
 
 ## Local development
 
@@ -51,6 +54,7 @@ npm run test:cart:integration
 npm run test:checkout:integration
 npm run test:payment:integration
 npm run test:orders:integration
+npm run test:admin-catalogue:integration
 npm run build
 npm run db:status
 git diff --check

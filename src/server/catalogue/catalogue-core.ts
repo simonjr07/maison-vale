@@ -57,6 +57,7 @@ export type ProductDetailDto = ProductCardDto & {
     color: string | null;
     price: string;
     availability: "In stock" | "Out of stock" | "Unavailable";
+    stockMessage: string;
   }>;
 };
 
@@ -74,6 +75,19 @@ const usdFormatter = new Intl.NumberFormat("en-US", {
 
 export function formatUsd(priceCents: number) {
   return usdFormatter.format(priceCents / 100);
+}
+
+export function getPublicStockMessage(input: {
+  productActive: boolean;
+  productPublished: boolean;
+  variantActive: boolean;
+  stockQuantity: number;
+}) {
+  const availability = getVariantAvailability(input);
+  if (availability === "Unavailable") return "Unavailable";
+  if (input.stockQuantity <= 0) return "Sold out";
+  if (input.stockQuantity <= 10) return `Only ${input.stockQuantity} left in stock`;
+  return "In stock";
 }
 export function getPriceDisplay(variants: CatalogueVariantRecord[]) {
   const activePrices = variants
@@ -188,18 +202,22 @@ export function toProductDetailDto(
             .sort((left, right) => left.sortOrder - right.sortOrder)
             .map((image) => ({ url: image.url, alt: image.altText }))
         : [FALLBACK_IMAGE],
-    variants: product.variants.map((variant) => ({
-      id: variant.id,
-      name: variant.name,
-      size: variant.size,
-      color: variant.color,
-      price: formatUsd(variant.priceCents),
-      availability: getVariantAvailability({
+    variants: product.variants.map((variant) => {
+      const stockInput = {
         productActive: product.active,
         productPublished: product.published,
         variantActive: variant.active,
         stockQuantity: variant.stockQuantity,
-      }),
-    })),
+      };
+      return {
+        id: variant.id,
+        name: variant.name,
+        size: variant.size,
+        color: variant.color,
+        price: formatUsd(variant.priceCents),
+        availability: getVariantAvailability(stockInput),
+        stockMessage: getPublicStockMessage(stockInput),
+      };
+    }),
   };
 }

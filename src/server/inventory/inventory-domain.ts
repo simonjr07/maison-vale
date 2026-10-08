@@ -105,7 +105,7 @@ export const decreaseInventorySchema = requireReferencePair(
 );
 
 export const setInventorySchema = requireReferencePair(
-  z.object({ ...commandFields, quantity: stockLevel }).strict(),
+  z.object({ ...commandFields, quantity: stockLevel, expectedQuantity: stockLevel.optional() }).strict(),
 );
 
 export const inventoryAdjustmentSchema = z.discriminatedUnion("operation", [
@@ -123,6 +123,7 @@ export const inventoryAdjustmentSchema = z.discriminatedUnion("operation", [
     operation: z.literal("SET"),
     ...commandFields,
     quantity: stockLevel,
+    expectedQuantity: stockLevel.optional(),
   }).strict(),
 ]).superRefine((value, context) => {
   if (Boolean(value.referenceType) !== Boolean(value.referenceId)) {

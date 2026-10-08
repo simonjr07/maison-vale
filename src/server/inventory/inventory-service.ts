@@ -186,6 +186,13 @@ export function createInventoryService(database: InventoryDatabase) {
 
         if (!current) throw new InventoryError("VARIANT_NOT_FOUND");
 
+        if (
+          command.expectedQuantity !== undefined &&
+          current.stockQuantity !== command.expectedQuantity
+        ) {
+          throw new InventoryError("CONCURRENT_MODIFICATION");
+        }
+
         const quantityDelta = command.quantity - current.stockQuantity;
         if (quantityDelta === 0) {
           throw new InventoryError(
@@ -197,7 +204,7 @@ export function createInventoryService(database: InventoryDatabase) {
         const updated = await transaction.productVariant.updateMany({
           where: {
             id: command.variantId,
-            stockQuantity: current.stockQuantity,
+            stockQuantity: command.expectedQuantity ?? current.stockQuantity,
           },
           data: { stockQuantity: command.quantity },
         });
