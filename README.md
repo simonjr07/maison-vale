@@ -26,7 +26,8 @@ Maison Vale is a fictional premium lifestyle e-commerce portfolio application. T
 - Privacy-aware guest order lookup with masked details and short-lived scoped access
 - Searchable administrative product, variant, category, image, and inventory tools
 - ADMIN-only catalogue mutations, STAFF read access, archival workflows, and audited stock changes
-- No public registration, refunds, order administration, or analytics yet
+- Secure administrative order search, full fulfillment details, and audited manual dispatch/delivery
+- No public registration, automated refunds, carrier tracking, or analytics yet
 
 ## Local development
 
@@ -55,6 +56,7 @@ npm run test:checkout:integration
 npm run test:payment:integration
 npm run test:orders:integration
 npm run test:admin-catalogue:integration
+npm run test:admin-orders:integration
 npm run build
 npm run db:status
 git diff --check

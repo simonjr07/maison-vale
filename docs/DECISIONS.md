@@ -51,6 +51,9 @@
 - Administrative image management is limited to one primary image selected from a server allow-list of repository-owned catalogue assets. Uploads and arbitrary external URLs remain deferred.
 - New administrative variants start at zero stock. Opening stock and later corrections are separate optimistic-concurrency inventory operations so every change produces an immutable movement record.
 - Public product details disclose exact stock only from one through ten units. Larger quantities use `In stock`, zero uses `Sold out`, and unavailable records expose no count. Cart and checkout remain authoritative and no display reserves stock.
+- TASK-011 order reads are shared by active ADMIN and STAFF users; fulfillment writes are ADMIN-only. Customer-email search uses POST-backed Server Actions so PII does not enter admin URLs.
+- V1 manual fulfillment supports only verified-paid `PROCESSING → SHIPPED → DELIVERED`. Each transition records the administrator email in an internal status note. `SHIPPED` means physical dispatch was manually confirmed, while `DELIVERED` is a manual operational confirmation; neither is carrier-verified.
+- Cancellation, refunds, automatic restocking, tracking numbers, carrier events, and delivery estimates are not exposed by TASK-011. Existing cancellation/refund policy remains unresolved and payment truth remains webhook-controlled.
 
 ## Unresolved
 

@@ -19,6 +19,7 @@ export default async function AdminPage() {
           <li>Variant pricing, availability, and archival controls</li>
           <li>Concurrency-aware inventory adjustments with movement history</li>
           <li>Curated image selection and category management</li>
+          <li>Verified-payment order review and manual fulfillment history</li>
         </ul>
       </section>
     </main>

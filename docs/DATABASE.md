@@ -38,6 +38,8 @@ The payment migration adds an HMAC checkout-attempt identity and request fingerp
 
 Order and item rows are checkout snapshots. Successful webhook finalization updates payment, inventory, inventory movements, order status, order status history, and webhook outcome atomically. Insufficient stock rolls that transaction back before a separate transaction records payment truth and the operational exception.
 
+TASK-011 adds no schema migration. Manual dispatch and delivery reuse `Order.status` and append immutable `OrderStatusEvent` rows in the same transaction as each conditional status update. The event note records the acting administrator and explicitly distinguishes manual confirmation from carrier verification. Historical `OrderItem` snapshots, payments, refunds, totals, and inventory records are read-only to this workflow.
+
 TASK-009 adds no order schema or mutable lookup record. Signed lookup scope remains in a short-lived HttpOnly cookie. Existing `LoginRateLimitBucket` rows are reused with domain-separated HMAC identities for request-source and proof-pair limits; raw lookup inputs are not stored.
 
 ## Deferred decisions

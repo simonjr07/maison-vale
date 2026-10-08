@@ -46,6 +46,10 @@ TASK-003 implements Auth.js credentials authentication with eight-hour encrypted
 
 Every protected page resolves the session and rechecks id, role, and active state from PostgreSQL. ADMIN-only and explicitly shared ADMIN/STAFF access use reusable server-side role helpers. There is no registration route.
 
+Administrative order pages are request-time, noindex views behind the same active-user database recheck. ADMIN and STAFF can read fulfillment information, including contact and full shipping address, because both roles are trusted operational users. Customer-email search is submitted through an authenticated same-origin Server Action instead of a query string, preventing PII from entering URLs, redirects, or metadata. Public order DTO masking and scoped guest authorization remain unchanged.
+
+Every fulfillment action independently requires ADMIN, validates an explicit transition allow-list, and conditionally updates the expected current state. A current `PAID` payment and null payment issue are part of the transactional predicate. Duplicate and concurrent submissions cannot create duplicate events. Status notes are internal and may contain the acting administrator email; public order mapping continues to omit notes. No action accepts or returns Stripe identifiers, raw provider failures, webhook data, secrets, or payment controls.
+
 Login attempts use a 15-minute fixed window with five allowed attempts. The stored bucket key is an HMAC-SHA256 digest of normalized email and request source using `RATE_LIMIT_SECRET`; raw identifiers are not stored. Missing secrets and database failures deny authentication. Auth logs omit credentials and expected invalid-credential details.
 
 Auth.js trusts the host supplied by the deployment platform. Production must retain the documented Vercel topology or otherwise validate and normalize forwarded host and client-address headers at the trusted proxy boundary.
