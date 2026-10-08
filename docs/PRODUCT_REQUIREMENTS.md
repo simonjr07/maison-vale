@@ -53,4 +53,6 @@ TASK-011 provides protected order search and full operational details for ADMIN 
 
 TASK-012 provides a protected, read-only commerce dashboard for ADMIN and STAFF users. It reports verified gross sales, persisted refunds, net sales, distinct paid orders, average paid order value, payment/inventory exceptions, snapshot-based top variants, and current low-stock or sold-out variants. Periods are defined in UTC as 7, 30, or 90 inclusive calendar days, plus all time. Financial reporting excludes pending and failed payments and clearly identifies all Stripe activity as sandbox data.
 
+TASK-014 hardens production boundaries without expanding commerce behavior. Browser payment initiation and guest lookup require the canonical origin, request bodies are byte-bounded, rate limits include source-wide abuse ceilings, trusted proxy data is deployment-specific, hosted PostgreSQL requires encrypted transport, and sensitive responses use private cache policy and security headers. Operational scripts are explicitly gated, configuration is checked without disclosing values, and hosted claims remain subject to the TASK-015 evidence checklist. Stripe remains sandbox-only.
+
 Cancellation, automated or administrative refunds, automatic restocking, carrier tracking, and delivery estimates remain deferred because the current schema and business rules do not support them safely.

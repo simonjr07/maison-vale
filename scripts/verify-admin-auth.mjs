@@ -65,14 +65,15 @@ async function credentialSignIn(candidatePassword) {
 
 async function assertRedirectedToLogin(response) {
   if ([302, 303, 307, 308].includes(response.status)) {
-    assert.equal(new URL(response.headers.get("location")).pathname, "/admin/login");
+    assert.equal(new URL(response.headers.get("location"), baseUrl).pathname, "/admin/login");
     return;
   }
 
   assert.equal(response.status, 200);
   const body = await response.text();
-  assert.doesNotMatch(body, /The operations foundation is ready/i);
-  assert.match(body, /\/admin\/login/);
+  if (/The operations foundation is ready/i.test(body) || !/\/admin\/login/.test(body)) {
+    throw new Error(`Expected protected access to resolve to login; received status ${response.status} without a login redirect marker.`);
+  }
 }
 
 async function main() {
@@ -134,6 +135,8 @@ main()
     console.error(`Admin authentication integration verification failed during ${verificationStage}.`);
     if (error instanceof assert.AssertionError) {
       console.error(`Expected ${String(error.expected)}, received ${String(error.actual)}.`);
+    } else if (error instanceof Error) {
+      console.error(error.message);
     }
     process.exitCode = 1;
   })

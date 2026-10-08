@@ -2,12 +2,18 @@ import "dotenv/config";
 
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client.ts";
+import { assertProductionProvisioningAllowed } from "../src/operations/runtime-safety.ts";
 import { hashPassword } from "../src/server/auth/password.ts";
 import { adminProvisionSchema } from "../src/server/auth/validation.ts";
 
 const parsed = adminProvisionSchema.safeParse({
   email: process.env.ADMIN_EMAIL,
   password: process.env.ADMIN_PASSWORD,
+});
+
+assertProductionProvisioningAllowed({
+  nodeEnv: process.env.NODE_ENV,
+  enabled: process.env.ALLOW_PRODUCTION_ADMIN_PROVISIONING,
 });
 
 if (!parsed.success) {

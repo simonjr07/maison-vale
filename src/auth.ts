@@ -3,11 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import type { UserRole } from "@/generated/prisma/enums";
 
 import { authenticateCredentialsWithDatabase } from "@/server/auth/authenticate-db";
-
-function getRequestSource(request: Request) {
-  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return forwarded || request.headers.get("x-real-ip")?.trim() || "unavailable";
-}
+import { getTrustedRequestSource } from "@/server/http/request-security";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET,
@@ -23,7 +19,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials, request) {
         const identity = await authenticateCredentialsWithDatabase(
           credentials,
-          getRequestSource(request),
+          getTrustedRequestSource(request.headers),
         );
 
         return identity ? { id: identity.id, role: identity.role } : null;

@@ -164,6 +164,10 @@ try {
   state = await read(scenarioA, stockTwo);
   verify(state.currentVariant.stockQuantity === 1 && state.movements === 1 && state.transitions === 1, "Scenario B duplicated a business mutation.");
 
+  verify((await processWebhook(event(scenarioA, "scenario_a_delayed"))).outcome === "ALREADY_FINALIZED", "A delayed event for a finalized payment was not ignored.");
+  state = await read(scenarioA, stockTwo);
+  verify(state.currentVariant.stockQuantity === 1 && state.movements === 1 && state.transitions === 1, "A delayed event repeated a business mutation.");
+
   const concurrentVariant = await product("Scenario C", 2);
   const scenarioC = await pendingOrder(concurrentVariant);
   const concurrentEvent = event(scenarioC, "scenario_c");
@@ -203,7 +207,13 @@ try {
   unknown.session.id = `cs_test_unknown_${key}`;
   verify((await processWebhook(unknown)).outcome === "UNKNOWN_SESSION", "Unknown session linkage was not handled safely.");
 
-  console.log("Payment integration verification passed: authoritative session creation, attempt idempotency, paid finalization, duplicate and concurrent delivery, inventory exceptions, mismatch protection, and rollback.");
+  const liveVariant = await product("Live Event", 2);
+  const liveFixture = await pendingOrder(liveVariant);
+  verify((await processWebhook(event(liveFixture, "live", { livemode: true }))).outcome === "LIVE_MODE_REJECTED", "A live-mode event was accepted in the sandbox-only application.");
+  state = await read(liveFixture, liveVariant);
+  verify(state.payment.status === "PENDING" && state.order.status === "PENDING" && state.currentVariant.stockQuantity === 2 && state.movements === 0, "A rejected live-mode event changed payment, order, or inventory state.");
+
+  console.log("Payment integration verification passed: authoritative session creation, attempt idempotency, paid finalization, event and payment idempotency, concurrent delivery, sandbox isolation, inventory exceptions, mismatch protection, and rollback.");
 } finally {
   await prisma.inventoryMovement.deleteMany({ where: { referenceType: "ORDER", referenceId: { in: orderIds } } });
   await prisma.stripeWebhookEvent.deleteMany({ where: { stripeEventId: { in: eventIds } } });

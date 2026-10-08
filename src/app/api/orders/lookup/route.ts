@@ -10,35 +10,33 @@ import {
   OrderLookupValidationError,
 } from "@/server/order/order-lookup-service";
 import { getOrderLookupService } from "@/server/order/order-lookup";
+import {
+  RequestBodyTooLargeError,
+  getApplicationOrigin,
+  getTrustedRequestSource,
+  hasExpectedOrigin,
+  readBoundedText,
+} from "@/server/http/request-security";
 
 const MAX_BODY_LENGTH = 4_096;
 
-function requestSource(request: Request) {
-  return (
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    request.headers.get("x-real-ip")?.trim() ||
-    "unavailable"
-  ).slice(0, 128);
-}
-
-function expectedOrigin(request: Request) {
-  return new URL(process.env.APP_URL?.trim() || request.url).origin;
-}
-
 export async function POST(request: Request) {
   try {
-    const origin = request.headers.get("origin");
-    if (origin && new URL(origin).origin !== expectedOrigin(request)) {
+    const origin = getApplicationOrigin(request.url);
+    if (!origin) {
+      return NextResponse.json(
+        { error: "Order lookup is temporarily unavailable." },
+        { status: 503 },
+      );
+    }
+    if (!hasExpectedOrigin(request, origin)) {
       return NextResponse.json(
         { error: "This order lookup request is not allowed." },
         { status: 403 },
       );
     }
 
-    const body = await request.text();
-    if (body.length > MAX_BODY_LENGTH) {
-      return NextResponse.json({ error: "The lookup request is too large." }, { status: 413 });
-    }
+    const body = await readBoundedText(request, MAX_BODY_LENGTH);
 
     const service = getOrderLookupService();
     if (!service) {
@@ -48,7 +46,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const verified = await service.verifyOrder(JSON.parse(body), requestSource(request));
+    const verified = await service.verifyOrder(
+      JSON.parse(body),
+      getTrustedRequestSource(request.headers),
+    );
     const response = NextResponse.json({
       ok: true,
       orderNumber: verified.orderNumber,
@@ -66,6 +67,9 @@ export async function POST(request: Request) {
     response.headers.set("Cache-Control", "no-store");
     return response;
   } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return NextResponse.json({ error: "The lookup request is too large." }, { status: 413 });
+    }
     if (error instanceof OrderLookupValidationError) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }

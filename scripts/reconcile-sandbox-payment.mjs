@@ -4,6 +4,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import Stripe from "stripe";
 
 import { PrismaClient } from "../src/generated/prisma/client.ts";
+import { assertSandboxReconciliationAllowed } from "../src/operations/runtime-safety.ts";
 import {
   canApplySandboxReconciliation,
   reconciliationEventId,
@@ -23,9 +24,10 @@ if (!connectionString) throw new Error("DATABASE_URL is not configured.");
 if (!stripeKey?.startsWith("sk_test_")) {
   throw new Error("Sandbox reconciliation requires a Stripe test key.");
 }
-if (process.env.NODE_ENV === "production") {
-  throw new Error("Sandbox reconciliation is disabled in production.");
-}
+assertSandboxReconciliationAllowed({
+  nodeEnv: process.env.NODE_ENV,
+  enabled: process.env.ALLOW_SANDBOX_RECONCILIATION,
+});
 
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
 const stripe = new Stripe(stripeKey);

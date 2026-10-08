@@ -58,7 +58,14 @@
 - Verified gross sales include the persisted provider-observed amount for current USD `PAID`, `PARTIALLY_REFUNDED`, and `REFUNDED` payment records by stable payment-record creation date. Refunds use persisted refund-record dates, so a period refund may relate to an earlier sale. Pending, failed, non-USD, and incomplete provider records are excluded.
 - Financial windows use UTC inclusive calendar days for 7-, 30-, and 90-day views. Inventory alerts always reflect current active-variant stock and are not historical period metrics.
 - Top variants use immutable order-item snapshots. Webhook ledger records are never joined into sales aggregation, so event retries cannot multiply revenue.
+- Vercel production rate limits use the platform-overwritten `x-vercel-forwarded-for`. Generic forwarded-address headers are ignored in production unless a controlled proxy deployment explicitly opts in and overwrites them.
+- Browser payment initiation and guest order lookup require an exact canonical Origin. Request bodies are limited by streamed byte count rather than JavaScript string length.
+- Login and payment initiation use both identity/source and source-wide HMAC buckets to limit attacks that rotate email values. Expired bucket deletion is a separate dry-run-first maintenance operation.
+- Production responses use a conservative baseline CSP and security-header policy. A strict nonce-based script policy is deferred until hosted rendering and Stripe navigation are validated.
+- Hosted PostgreSQL connections require TLS. Runtime and migration roles should be separated by least privilege, and production configuration is checked without revealing values.
+- Production seeding and production payment reconciliation are prohibited. Remote development seeding, sandbox reconciliation, and production administrator provisioning require explicit, temporary operator gates.
+- Dependency remediation must preserve supported framework and ORM versions. Compatible transitive fixes may be pinned; force-driven major downgrades are not accepted merely to reduce an audit counter.
 
 ## Unresolved
 
-Production tax automation, abandoned-order retention, refund and partial-refund policy, production pool sizing, staff permission mapping for future modules, and password recovery/rotation operations remain open. These must be resolved before the relevant implementation tasks.
+Production tax automation, abandoned-order retention, refund and partial-refund policy, production pool sizing, staff permission mapping, password recovery, MFA, credential rotation, transactional-email ownership verification, monitoring/alerting, and a strict nonce-based CSP remain open. These must be resolved before the relevant implementation or launch task.

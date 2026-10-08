@@ -2,6 +2,7 @@ import { PaymentError } from "@/payment/payment-domain";
 import { processPaidCheckoutSession } from "@/server/payment/webhook";
 import { normalizeCompletedCheckoutSession } from "@/server/stripe/checkout-event";
 import { getStripeClient, getStripeWebhookSecret } from "@/server/stripe/stripe-client";
+import { RequestBodyTooLargeError, readBoundedText } from "@/server/http/request-security";
 
 const MAX_WEBHOOK_LENGTH = 1_000_000;
 
@@ -12,10 +13,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const rawBody = await request.text();
-    if (rawBody.length > MAX_WEBHOOK_LENGTH) {
-      return Response.json({ error: "Webhook payload is too large." }, { status: 413 });
-    }
+    const rawBody = await readBoundedText(request, MAX_WEBHOOK_LENGTH);
 
     const stripe = getStripeClient();
     const event = stripe.webhooks.constructEvent(
@@ -44,6 +42,9 @@ export async function POST(request: Request) {
     }
     return Response.json({ received: true, outcome: result.outcome });
   } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return Response.json({ error: "Webhook payload is too large." }, { status: 413 });
+    }
     if (error instanceof PaymentError) {
       console.warn("Stripe webhook unavailable because verification is not configured.");
       return Response.json({ error: error.message }, { status: 503 });

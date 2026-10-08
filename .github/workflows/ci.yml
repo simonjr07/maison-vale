@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: maison_vale_ci
+          POSTGRES_USER: maison_vale_ci
+          POSTGRES_PASSWORD: maison_vale_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U maison_vale_ci -d maison_vale_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://maison_vale_ci:maison_vale_ci@127.0.0.1:5432/maison_vale_ci?schema=public
+      DIRECT_URL: postgresql://maison_vale_ci:maison_vale_ci@127.0.0.1:5432/maison_vale_ci?schema=public
+      APP_URL: http://localhost:3000
+      AUTH_SECRET: ci-auth-secret-not-used-outside-automated-tests
+      RATE_LIMIT_SECRET: ci-rate-limit-secret-not-used-outside-automated-tests
+      ORDER_LOOKUP_SECRET: ci-order-lookup-secret-not-used-outside-automated-tests
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run db:generate
+      - run: npx prisma migrate deploy
+      - run: npm run db:seed
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run test:catalogue:integration
+      - run: npm run test:inventory:integration
+      - run: npm run test:cart:integration
+      - run: npm run test:checkout:integration
+      - run: npm run test:payment:integration
+      - run: npm run test:orders:integration
+      - run: npm run test:admin-catalogue:integration
+      - run: npm run test:admin-orders:integration
+      - run: npm run test:admin-analytics:integration
+      - run: npm run build

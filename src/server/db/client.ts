@@ -2,12 +2,14 @@ import "server-only";
 
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/prisma/client";
+import { assertSecureDatabaseConnection } from "@/server/db/connection-security";
 
 const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {
   throw new Error("DATABASE_URL is not configured.");
 }
+assertSecureDatabaseConnection(connectionString);
 
 const createPrismaClient = () => {
   const adapter = new PrismaPg({ connectionString });
