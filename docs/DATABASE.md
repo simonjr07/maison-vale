@@ -42,6 +42,8 @@ TASK-011 adds no schema migration. Manual dispatch and delivery reuse `Order.sta
 
 TASK-009 adds no order schema or mutable lookup record. Signed lookup scope remains in a short-lived HttpOnly cookie. Existing `LoginRateLimitBucket` rows are reused with domain-separated HMAC identities for request-source and proof-pair limits; raw lookup inputs are not stored.
 
+TASK-012 adds no schema migration. Analytics reads existing `Payment`, `Refund`, `Order`, `OrderItem`, and `ProductVariant` records. Gross sales use the persisted provider-observed integer-cent amount on verified USD payment records; top variants use immutable order-item names, variant names, SKUs, quantities, and line totals. `StripeWebhookEvent` is not joined into revenue queries, so retries and duplicate webhook ledger rows cannot multiply sales. Current stock alerts remain a separate live operational measure.
+
 ## Deferred decisions
 
 The guest cart and TASK-007 preparation remain stateless. TASK-008 does not reserve stock. Production tax automation, abandoned-pending-order cleanup, refunds, partial-refund policy, product archival workflows, and production pool sizing remain future decisions.

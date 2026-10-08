@@ -50,6 +50,12 @@ Administrative order pages are request-time, noindex views behind the same activ
 
 Every fulfillment action independently requires ADMIN, validates an explicit transition allow-list, and conditionally updates the expected current state. A current `PAID` payment and null payment issue are part of the transactional predicate. Duplicate and concurrent submissions cannot create duplicate events. Status notes are internal and may contain the acting administrator email; public order mapping continues to omit notes. No action accepts or returns Stripe identifiers, raw provider failures, webhook data, secrets, or payment controls.
 
+## Administrative analytics
+
+Analytics inherits the protected request-time admin layout, active-user database recheck, ADMIN/STAFF read policy, and noindex metadata. The period input is allow-listed before database access. The analytics service is read-only and selects no customer email, recipient, address, provider id, webhook id, internal issue text, or status-event note.
+
+Payment records—not redirects or browser state—supply gross sales. The query includes only USD `PAID`, `PARTIALLY_REFUNDED`, and `REFUNDED` records with a persisted provider-observed amount; refund totals come from persisted `Refund` rows. Stripe webhook events are excluded from all financial joins, preventing redelivery ledger rows from multiplying revenue. Current inventory is displayed separately from period financials and cannot authorize checkout or reserve stock.
+
 Login attempts use a 15-minute fixed window with five allowed attempts. The stored bucket key is an HMAC-SHA256 digest of normalized email and request source using `RATE_LIMIT_SECRET`; raw identifiers are not stored. Missing secrets and database failures deny authentication. Auth logs omit credentials and expected invalid-credential details.
 
 Auth.js trusts the host supplied by the deployment platform. Production must retain the documented Vercel topology or otherwise validate and normalize forwarded host and client-address headers at the trusted proxy boundary.
