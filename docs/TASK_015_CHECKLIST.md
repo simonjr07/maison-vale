@@ -2,19 +2,22 @@
 
 This checklist prepares Maison Vale for a portfolio sandbox deployment. It does not authorize live commerce. Keep Stripe in test mode and capture evidence without exposing credentials, full customer data, provider identifiers, or internal diagnostic text.
 
+Current status: repository preparation is in progress. No hosted URL, Supabase migration, remote catalogue seed, production administrator, Stripe Dashboard destination, hosted payment, browser QA, log review, backup restore, or final screenshot has been verified. Complete account-owned steps in the relevant dashboard; never paste credentials into chat.
+
 ## Before deployment
 
-- [ ] Review the TASK-014 security audit and resolve or explicitly accept every remaining blocker.
+- [x] Review the TASK-014 security audit and carry every remaining blocker into hosted QA.
 - [ ] Confirm the intended Vercel project, Supabase project, canonical HTTPS hostname, owners, and rollback contact.
 - [ ] Protect the deployment branch and require the CI workflow to pass.
 - [ ] Run `npm ci`, Prisma generation and validation, lint, typecheck, unit tests, every PostgreSQL integration suite, production build, both dependency audits, and `git diff --check` from the release revision.
 - [ ] Review all migrations. Use `prisma migrate deploy`; never use reset, development migration generation, or seed against production.
-- [ ] Confirm no real secret, `.env` file, customer export, or production credential is tracked.
+- [x] Confirm no real secret, `.env` file, customer export, or production credential is tracked; the live-key test sentinel is intentional.
 
 ## Supabase
 
 - [ ] Create separate runtime and migration roles when supported. Grant the runtime role only required table and sequence access; reserve DDL for the migration role.
-- [ ] Set `DATABASE_URL` to the supported pooled runtime endpoint and `DIRECT_URL` to the direct migration endpoint.
+- [ ] Set Vercel `DATABASE_URL` to the supported transaction-pooler endpoint with `pgbouncer=true` and TLS.
+- [ ] Keep the distinct `DIRECT_URL` in the controlled migration environment only; do not expose the migration role to the Vercel web runtime.
 - [ ] Require TLS in both URLs with an approved `sslmode` and confirm certificate behavior for the selected mode.
 - [ ] Apply reviewed migrations once, then verify migration status. Do not run the development seed.
 - [ ] Configure backups and perform a documented restore drill before claiming production readiness.
@@ -29,6 +32,7 @@ This checklist prepares Maison Vale for a portfolio sandbox deployment. It does 
 - [ ] Do not leave `ADMIN_EMAIL` or `ADMIN_PASSWORD` in the runtime environment.
 - [ ] Configure only `sk_test_`, `whsec_`, and, if needed, `pk_test_` Stripe credentials. Never add live keys.
 - [ ] Run `npm run deployment:check` in the target environment and retain redacted pass/fail evidence.
+- [ ] Confirm Node.js 22, the Next.js preset, `npm install`, `npm run build`, and framework-managed output are selected. Do not add migrations or seeds to the build command.
 
 ## One-off operations
 
@@ -76,3 +80,12 @@ This checklist prepares Maison Vale for a portfolio sandbox deployment. It does 
 - [ ] Capture desktop and mobile storefront, cart, checkout, guest lookup, admin catalogue, order operations, and analytics views with synthetic data only.
 - [ ] Record CI, deployment-check, migration, header, accessibility, and sandbox payment evidence with all credentials and provider ids redacted.
 - [ ] State limitations plainly: test payments only, lightweight guest verification, manual fulfillment, no carrier tracking, no automated tax/refunds, and no claim of penetration testing or compliance certification.
+
+## External actions needed to continue
+
+- [ ] The owner creates or selects the Supabase and Vercel projects and records the intended region and canonical hostname.
+- [ ] The owner configures sensitive values directly in the provider dashboards without sharing them in chat.
+- [ ] The owner confirms that the reviewed remote migrations may be applied.
+- [ ] The owner separately confirms whether the fictional catalogue seed may run against the empty hosted database.
+- [ ] After the HTTPS deployment exists, the owner creates the Stripe sandbox webhook destination and configures its unique signing secret in Vercel.
+- [ ] The owner supplies only the public deployment URL for automated read-only QA; no credentials are needed for that check.

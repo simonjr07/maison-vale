@@ -2,6 +2,12 @@
 
 Maison Vale is a fictional premium lifestyle e-commerce portfolio application. The repository includes the project foundation, PostgreSQL/Prisma data layer, administrative authentication and operations, public catalogue, guest cart, Stripe test-mode checkout, and database-backed commerce analytics.
 
+> **Deployment status:** hosted deployment and QA are not yet verified. No live demo URL is published in this README. Payments are simulated with Stripe sandbox; the application cannot accept real charges.
+
+## Technology
+
+Next.js 16, React 19, TypeScript, Tailwind CSS, PostgreSQL 17, Prisma ORM 7, Auth.js, bcrypt, Stripe Checkout, Vitest, ESLint, GitHub Actions, Vercel, and Supabase.
+
 ## Current foundation
 
 - Next.js App Router with React and TypeScript
@@ -34,6 +40,21 @@ Maison Vale is a fictional premium lifestyle e-commerce portfolio application. T
 - Deployment configuration validation, guarded operational scripts, rate-limit maintenance, and CI verification
 - No public registration, automated refunds, or carrier tracking
 
+## Architecture
+
+```mermaid
+flowchart LR
+    Browser[Storefront and admin browser] --> Next[Next.js request boundaries]
+    Next --> Services[Commerce and authorization services]
+    Services --> Pool[Supabase pooled runtime connection]
+    Pool --> DB[(PostgreSQL)]
+    Next --> Stripe[Stripe sandbox Checkout]
+    Stripe --> Webhook[Signed idempotent webhook]
+    Webhook --> Services
+```
+
+The browser is a convenience layer, never a pricing, inventory, role, or payment authority. Server boundaries validate hostile input and return allow-listed DTOs. PostgreSQL constraints and transactions protect durable invariants. Stripe redirects provide navigation only; verified webhooks establish payment truth.
+
 ## Local development
 
 ```bash
@@ -64,6 +85,7 @@ npm run test:admin-catalogue:integration
 npm run test:admin-orders:integration
 npm run test:admin-analytics:integration
 npm run deployment:check
+npm run deployment:assets
 npm run rate-limits:cleanup
 npm run build
 npm run db:status
@@ -80,6 +102,25 @@ npm run admin:provision
 
 The password must contain 12 to 128 characters. Provisioning creates a new ADMIN account or deliberately updates and activates the existing account with the normalized email. The script never prints the password.
 
+There are no public demo administrator credentials. A hosted portfolio should present sanitized admin screenshots or a supervised demonstration instead of publishing reusable credentials.
+
+## Deployment and hosted QA
+
+The target is Vercel with a separate Supabase PostgreSQL database and Stripe sandbox. Runtime traffic uses a TLS-protected pooled connection with a least-privilege application role. Prisma migrations use a separate direct credential from a controlled operator environment; the direct migration credential should not be configured in the Vercel web runtime.
+
+```bash
+npm run deployment:check
+npm run deployment:check:migrations
+npm run deployment:assets
+npm run qa:hosted -- --url=https://your-verified-host.example
+```
+
+The hosted QA command is read-only. It verifies public routes, indexing boundaries, response security headers, all 25 optimized images, the unauthenticated admin redirect, and missing-Origin rejection. Stripe Checkout, authenticated administration, secure cookies, logs, accessibility, backups, and responsive presentation still require manual evidence.
+
+Follow [`docs/TASK_015_CHECKLIST.md`](./docs/TASK_015_CHECKLIST.md) before adding a live URL. Never paste production or sandbox credentials into an issue, pull request, screenshot, or chat.
+
+Hosted results are recorded separately in [`docs/HOSTED_QA.md`](./docs/HOSTED_QA.md); pending entries are not implied successes.
+
 ## Roadmap
 
 The planned implementation sequence is documented in [`docs/TASKS.md`](./docs/TASKS.md). Decisions and unresolved questions are recorded in [`docs/DECISIONS.md`](./docs/DECISIONS.md).
@@ -95,3 +136,13 @@ The seeded public catalogue uses reviewed local WebP photography for every produ
 The protected `/admin` landing page reports real PostgreSQL records and is available to active ADMIN and STAFF users. Gross sales use persisted provider-observed amounts for verified USD payments currently recorded as paid, partially refunded, or refunded; pending and failed payments are excluded. Refund rows are reported by their own recorded dates, inventory alerts always use current stock, and Stripe test-mode figures are explicitly identified as sandbox activity.
 
 Production deployment remains a separate, evidence-driven step. Review [`docs/SECURITY_AUDIT.md`](./docs/SECURITY_AUDIT.md), run `npm run deployment:check` inside the hosted environment, and complete [`docs/TASK_015_CHECKLIST.md`](./docs/TASK_015_CHECKLIST.md) before treating the application as deployed. The checker validates configuration without printing secret values. `npm run rate-limits:cleanup` is dry-run by default; pass `-- --apply` only from an authorized maintenance environment.
+
+The implementation narrative is available in [`docs/CASE_STUDY.md`](./docs/CASE_STUDY.md). Authentic capture requirements and the pending evidence register are in [`docs/SCREENSHOTS.md`](./docs/SCREENSHOTS.md).
+
+## Known limitations
+
+- Stripe sandbox only; no live payments.
+- Guest order access uses lightweight email-plus-reference verification.
+- No automated tax, refunds, cancellation/restock flow, carrier tracking, or abandoned-checkout cleanup.
+- No customer accounts, administrator MFA, or password-recovery workflow.
+- Hosted monitoring, restore evidence, webhook delivery, and browser QA remain pending until the external services are configured.

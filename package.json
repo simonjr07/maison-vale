@@ -3,9 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
+    "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
@@ -29,6 +33,9 @@
     "db:smoke": "node --experimental-strip-types scripts/db-smoke.mjs",
     "admin:provision": "node --experimental-strip-types scripts/provision-admin.mjs",
     "deployment:check": "node --experimental-strip-types scripts/check-production-config.mjs --require-stripe",
+    "deployment:check:migrations": "node --experimental-strip-types scripts/check-production-config.mjs --require-direct-url --migration-only",
+    "deployment:assets": "node --experimental-strip-types scripts/verify-deployment-assets.mjs",
+    "qa:hosted": "node --experimental-strip-types scripts/verify-hosted-deployment.mjs",
     "rate-limits:cleanup": "node --experimental-strip-types scripts/cleanup-rate-limits.mjs"
   },
   "dependencies": {
