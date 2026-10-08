@@ -13,12 +13,10 @@ export function SiteFooter() {
           </p>
         </div>
         <div className="md:text-right">
-          <Link
-            className="inline-flex min-h-11 items-center text-sm underline decoration-[#f8f4ed]/35 underline-offset-4 hover:decoration-[#f8f4ed]"
-            href="/shop"
-          >
-            Browse the catalogue
-          </Link>
+          <div className="flex flex-wrap gap-x-6 md:justify-end">
+            <Link className="inline-flex min-h-11 items-center text-sm underline decoration-[#f8f4ed]/35 underline-offset-4 hover:decoration-[#f8f4ed]" href="/shop">Browse the catalogue</Link>
+            <Link className="inline-flex min-h-11 items-center text-sm underline decoration-[#f8f4ed]/35 underline-offset-4 hover:decoration-[#f8f4ed]" href="/orders">Find an order</Link>
+          </div>
           <p className="mt-5 text-xs uppercase tracking-[0.18em] text-[#f8f4ed]/45">
             Fictional portfolio storefront
           </p>

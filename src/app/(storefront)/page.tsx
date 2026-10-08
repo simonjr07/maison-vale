@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { connection } from "next/server";
 
 import { ProductGrid } from "@/components/storefront/product-grid";
 import {
@@ -10,6 +11,8 @@ import {
 export const instant = false;
 
 export default async function HomePage() {
+  await connection();
+
   const [categories, products] = await Promise.all([
     getActiveCategories(),
     getPublishedProducts(6),

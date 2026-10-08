@@ -10,7 +10,7 @@ The `/admin/login` route is public. The route-grouped `/admin` shell is protecte
 
 The route-grouped storefront exposes `/`, `/shop`, `/shop/[slug]`, `/collections/[slug]`, `/cart`, and `/checkout`. UI components call centralized server-only data modules instead of Prisma. Queries select only the fields needed for public presentation, and pure mapping functions produce allow-listed DTOs without database ids, SKUs, raw stock counts, or publication flags. Visibility requires an active, published product in an active category.
 
-Catalogue pages read PostgreSQL at request time. They intentionally do not use a persistent application cache because stock labels are advisory and should reflect current variant records. React request memoization prevents duplicate product queries between metadata and page rendering. Payment, order creation, and operational admin modules are not implemented.
+Catalogue pages read PostgreSQL at request time. They intentionally do not use a persistent application cache because stock labels are advisory and should reflect current variant records. React request memoization prevents duplicate product queries between metadata and page rendering. Test-mode payment and order creation are implemented; public order lookup and operational admin modules remain deferred.
 
 Variant availability is centralized in the inventory domain and requires an active, published product, an active variant, and positive stock. The catalogue maps that domain result into public labels without exposing quantities. Runtime inventory commands pass through Zod validation and the server-only inventory service. Stock changes and `InventoryMovement` audit rows share a database transaction.
 
@@ -20,9 +20,15 @@ The guest cart is a narrow client-side layer under the storefront route group. `
 
 `POST /api/cart/resolve` is the server boundary for cart presentation. It validates and normalizes the minimal payload, queries all requested variants in one database call, applies the centralized inventory availability rule, selects current images and prices, and calculates integer-cent line totals and subtotal. No cart operation reserves or decrements stock. Stale quantities are clamped to current availability with an explicit warning, while unavailable lines remain visible and removable but contribute zero to subtotal.
 
-The checkout foundation remains stateless. `POST /api/checkout/quote` independently re-resolves the cart and returns an authoritative order summary. `POST /api/checkout/prepare` additionally validates normalized guest contact and U.S. shipping details before repeating the same cart, inventory, price, shipping, tax, and total checks. Stale quantities and unavailable items fail closed. Neither route stores personal data, creates an order or payment, reserves stock, or writes an inventory movement.
+The checkout preview routes remain stateless. `POST /api/stripe/checkout-session` repeats validation and cart resolution, snapshots a pending order and payment, and creates a card-only Stripe-hosted Checkout Session from server amounts. A client UUID is stored only as an HMAC and paired with a request fingerprint; retries reuse the internal order and Stripe idempotency key.
 
-V1 checkout uses deterministic U.S.-only standard shipping: $8 below a $150 merchandise subtotal and free shipping at or above $150. Automated tax calculation is deferred, so the explicit authoritative tax amount is $0. TASK-008 will consume the prepared summary and define the payment/order/inventory commit lifecycle without treating browser state as authority.
+V1 checkout uses deterministic U.S.-only standard shipping: $8 below a $150 merchandise subtotal and free shipping at or above $150. Automated tax calculation is deferred, so the explicit authoritative tax amount is $0.
+
+`POST /api/stripe/webhook` verifies Stripe's signature against the untouched request body. A unique `StripeWebhookEvent` claim and an atomic payment-state claim make repeated and concurrent delivery safe. A valid paid session must match the stored session, order metadata, amount, and currency. Payment, conditional inventory decrements, movement records, the PENDING-to-PROCESSING transition, and its status event share one PostgreSQL transaction.
+
+V1 intentionally has no reservation. If stock cannot be committed after Stripe has collected payment, the fulfillment transaction rolls back. A separate durable transaction records the payment as PAID and leaves the order PENDING with `PAID_REQUIRES_INVENTORY_REVIEW`; refund or manual resolution is deferred to the order operations work.
+
+Guest order lookup is a read-only layer over the existing order, item, payment, and status-event snapshots. The lookup endpoint validates the reference/email proof, consumes two HMAC-keyed PostgreSQL rate-limit buckets, and sets a short-lived signed HttpOnly cookie. The dynamic order-details page reads that one-order scope before querying PostgreSQL and maps an allow-listed DTO with masked destination data. It never changes payment, fulfillment, inventory, or webhook state.
 
 ## Intended shape
 

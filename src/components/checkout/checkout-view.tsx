@@ -2,20 +2,19 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { type FormEvent, useCallback, useEffect, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
 
 import { formatCartMoney } from "@/cart/cart-domain";
 import type {
   CheckoutDetailsInput,
   CheckoutSummaryDto,
-  PreparedCheckoutDto,
 } from "@/checkout/checkout-domain";
 import { useCart } from "@/components/cart/cart-provider";
 
 import {
   CheckoutRequestError,
   requestCheckoutQuote,
-  requestPreparedCheckout,
+  requestStripeCheckout,
 } from "./checkout-client";
 
 function fieldId(path: string) {
@@ -84,7 +83,7 @@ function Summary({ summary }: { summary: CheckoutSummaryDto }) {
 export function CheckoutView() {
   const { cart, hydrated } = useCart();
   const [summary, setSummary] = useState<CheckoutSummaryDto | null>(null);
-  const [prepared, setPrepared] = useState<PreparedCheckoutDto | null>(null);
+  const attemptToken = useRef<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -140,17 +139,11 @@ export function CheckoutView() {
     setError("");
     setStatus("");
     setFieldErrors({});
-    setPrepared(null);
     try {
-      const next = await requestPreparedCheckout(input);
-      const changed = summary !== null && summary.totalCents !== next.totalCents;
-      setSummary(next);
-      setPrepared(next);
-      setStatus(
-        changed
-          ? "Your order summary was updated with current pricing. Review the new total before the payment step."
-          : next.message,
-      );
+      setStatus("Opening Stripe's secure checkout…");
+      attemptToken.current ??= crypto.randomUUID();
+      const result = await requestStripeCheckout({ ...input, attemptToken: attemptToken.current });
+      window.location.assign(result.url);
     } catch (requestError) {
       if (requestError instanceof CheckoutRequestError) {
         setError(requestError.message);
@@ -191,7 +184,7 @@ export function CheckoutView() {
 
   return (
     <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
-      <form noValidate onChange={() => { setPrepared(null); setStatus(""); }} onSubmit={handleSubmit}>
+      <form noValidate onChange={() => { attemptToken.current = crypto.randomUUID(); setStatus(""); }} onSubmit={handleSubmit}>
         {error ? (
           <div className="mb-8 border-l-2 border-[#9a5f42] bg-[#faf8f3] px-5 py-4" role="alert">
             <p className="font-medium">{error}</p>
@@ -207,7 +200,7 @@ export function CheckoutView() {
 
         <fieldset>
           <legend className="text-2xl font-medium tracking-[-0.025em]">Contact</legend>
-          <p className="mt-2 text-sm text-[#20211d]/55">Used only for this checkout and not saved at this stage.</p>
+          <p className="mt-2 text-sm text-[#20211d]/55">Used for your order and payment receipt.</p>
           <label className="mt-6 block text-sm font-medium" htmlFor={fieldId("contact.email")}>Email address</label>
           <input aria-describedby={fieldErrors["contact.email"] ? `${fieldId("contact.email")}-error` : undefined} aria-invalid={Boolean(fieldErrors["contact.email"])} autoComplete="email" className="mt-2 min-h-12 w-full border border-[#20211d]/25 bg-[#faf8f3] px-4" id={fieldId("contact.email")} maxLength={320} name="email" required type="email" />
           <FieldError errors={fieldErrors} path="contact.email" />
@@ -239,14 +232,13 @@ export function CheckoutView() {
         </fieldset>
 
         <div className="mt-10 border-t border-[#20211d]/15 pt-8">
-          <button className="min-h-12 w-full bg-[#20211d] px-6 text-sm font-medium text-white hover:bg-[#34463b] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto" disabled={submitting} type="submit">{submitting ? "Validating checkout…" : "Validate checkout details"}</button>
-          <p className="mt-4 max-w-xl text-xs leading-5 text-[#20211d]/55">This validates your details, cart, inventory, and total. It does not create an order or collect payment.</p>
+          <button className="min-h-12 w-full bg-[#20211d] px-6 text-sm font-medium text-white hover:bg-[#34463b] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto" disabled={submitting} type="submit">{submitting ? "Opening secure payment…" : "Continue to secure payment"}</button>
+          <p className="mt-4 max-w-xl text-xs leading-5 text-[#20211d]/55">This creates a pending order from current catalogue prices. Card details are entered securely on Stripe, and inventory changes only after verified payment.</p>
         </div>
 
         <div aria-live="polite" className="mt-7 min-h-6">
           {status ? <p className="border-l-2 border-[#34463b] bg-[#faf8f3] px-4 py-3 text-sm leading-6">{status}</p> : null}
         </div>
-        {prepared ? <p className="mt-2 text-sm text-[#20211d]/60">No payment or inventory change has occurred.</p> : null}
       </form>
       <Summary summary={summary} />
     </div>
