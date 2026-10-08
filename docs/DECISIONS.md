@@ -54,6 +54,10 @@
 - TASK-011 order reads are shared by active ADMIN and STAFF users; fulfillment writes are ADMIN-only. Customer-email search uses POST-backed Server Actions so PII does not enter admin URLs.
 - V1 manual fulfillment supports only verified-paid `PROCESSING → SHIPPED → DELIVERED`. Each transition records the administrator email in an internal status note. `SHIPPED` means physical dispatch was manually confirmed, while `DELIVERED` is a manual operational confirmation; neither is carrier-verified.
 - Cancellation, refunds, automatic restocking, tracking numbers, carrier events, and delivery estimates are not exposed by TASK-011. Existing cancellation/refund policy remains unresolved and payment truth remains webhook-controlled.
+- TASK-012 analytics is read-only for active ADMIN and STAFF users and lives on the protected `/admin` overview. It introduces no reporting mutation or public API.
+- Verified gross sales include the persisted provider-observed amount for current USD `PAID`, `PARTIALLY_REFUNDED`, and `REFUNDED` payment records by stable payment-record creation date. Refunds use persisted refund-record dates, so a period refund may relate to an earlier sale. Pending, failed, non-USD, and incomplete provider records are excluded.
+- Financial windows use UTC inclusive calendar days for 7-, 30-, and 90-day views. Inventory alerts always reflect current active-variant stock and are not historical period metrics.
+- Top variants use immutable order-item snapshots. Webhook ledger records are never joined into sales aggregation, so event retries cannot multiply revenue.
 
 ## Unresolved
 

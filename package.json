@@ -19,6 +19,7 @@
     "test:orders:integration": "node --experimental-strip-types scripts/verify-order-lookup.mjs",
     "test:admin-catalogue:integration": "node --experimental-strip-types scripts/verify-admin-catalogue.mjs",
     "test:admin-orders:integration": "node --experimental-strip-types scripts/verify-admin-orders.mjs",
+    "test:admin-analytics:integration": "node --experimental-strip-types scripts/verify-admin-analytics.mjs",
     "payment:diagnose": "node --experimental-strip-types scripts/diagnose-payments.mjs",
     "payment:reconcile:sandbox": "node --experimental-strip-types scripts/reconcile-sandbox-payment.mjs",
     "db:generate": "prisma generate",

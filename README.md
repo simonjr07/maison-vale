@@ -1,6 +1,6 @@
 # Maison Vale
 
-Maison Vale is a fictional premium lifestyle e-commerce portfolio application. The repository includes the project foundation, PostgreSQL/Prisma data layer, administrative authentication, public catalogue, guest cart, and Stripe test-mode checkout.
+Maison Vale is a fictional premium lifestyle e-commerce portfolio application. The repository includes the project foundation, PostgreSQL/Prisma data layer, administrative authentication and operations, public catalogue, guest cart, Stripe test-mode checkout, and database-backed commerce analytics.
 
 ## Current foundation
 
@@ -27,7 +27,8 @@ Maison Vale is a fictional premium lifestyle e-commerce portfolio application. T
 - Searchable administrative product, variant, category, image, and inventory tools
 - ADMIN-only catalogue mutations, STAFF read access, archival workflows, and audited stock changes
 - Secure administrative order search, full fulfillment details, and audited manual dispatch/delivery
-- No public registration, automated refunds, carrier tracking, or analytics yet
+- Protected read-only analytics with verified sales, refund, order, snapshot-performance, and live inventory signals
+- No public registration, automated refunds, or carrier tracking
 
 ## Local development
 
@@ -57,6 +58,7 @@ npm run test:payment:integration
 npm run test:orders:integration
 npm run test:admin-catalogue:integration
 npm run test:admin-orders:integration
+npm run test:admin-analytics:integration
 npm run build
 npm run db:status
 git diff --check
@@ -81,3 +83,5 @@ The planned implementation sequence is documented in [`docs/TASKS.md`](./docs/TA
 Checkout creates a pending order and payment before redirecting to Stripe-hosted Checkout. Only a verified webhook can record payment truth and advance the order. Inventory is not reserved; it is committed transactionally after payment, with a review state if stock has changed. The integration accepts test keys and rejects live-mode sessions and webhooks. See [`AGENTS.md`](./AGENTS.md) for the working rules.
 
 Guest order lookup requires the order reference and exact checkout email. Successful verification creates a 15-minute HttpOnly session scoped to one order; public details are allow-listed and the destination is masked. This is lightweight guest verification, not strong identity authentication.
+
+The protected `/admin` landing page reports real PostgreSQL records and is available to active ADMIN and STAFF users. Gross sales use persisted provider-observed amounts for verified USD payments currently recorded as paid, partially refunded, or refunded; pending and failed payments are excluded. Refund rows are reported by their own recorded dates, inventory alerts always use current stock, and Stripe test-mode figures are explicitly identified as sandbox activity.
