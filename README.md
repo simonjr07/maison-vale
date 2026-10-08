@@ -28,6 +28,8 @@ Maison Vale is a fictional premium lifestyle e-commerce portfolio application. T
 - ADMIN-only catalogue mutations, STAFF read access, archival workflows, and audited stock changes
 - Secure administrative order search, full fulfillment details, and audited manual dispatch/delivery
 - Protected read-only analytics with verified sales, refund, order, snapshot-performance, and live inventory signals
+- Variant-aware product galleries backed by 24 optimized catalogue photographs and a curated editorial image
+- Responsive storefront navigation, visible keyboard focus, skip navigation, and reduced-motion support
 - No public registration, automated refunds, or carrier tracking
 
 ## Local development
@@ -83,5 +85,7 @@ The planned implementation sequence is documented in [`docs/TASKS.md`](./docs/TA
 Checkout creates a pending order and payment before redirecting to Stripe-hosted Checkout. Only a verified webhook can record payment truth and advance the order. Inventory is not reserved; it is committed transactionally after payment, with a review state if stock has changed. The integration accepts test keys and rejects live-mode sessions and webhooks. See [`AGENTS.md`](./AGENTS.md) for the working rules.
 
 Guest order lookup requires the order reference and exact checkout email. Successful verification creates a 15-minute HttpOnly session scoped to one order; public details are allow-listed and the destination is masked. This is lightweight guest verification, not strong identity authentication.
+
+The seeded public catalogue uses reviewed local WebP photography for every product colourway. Size-only variants reuse their colour gallery, colour changes update the gallery and cart thumbnail, and checkout still revalidates the underlying variant and inventory. Asset provenance and replacement guidance are documented in [`docs/IMAGE_ASSETS.md`](./docs/IMAGE_ASSETS.md).
 
 The protected `/admin` landing page reports real PostgreSQL records and is available to active ADMIN and STAFF users. Gross sales use persisted provider-observed amounts for verified USD payments currently recorded as paid, partially refunded, or refunded; pending and failed payments are excluded. Refund rows are reported by their own recorded dates, inventory alerts always use current stock, and Stripe test-mode figures are explicitly identified as sandbox activity.

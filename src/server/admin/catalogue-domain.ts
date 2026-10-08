@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { CATALOGUE_IMAGE_OPTIONS as PHOTOGRAPHY_OPTIONS } from "../../catalogue/image-assets.ts";
 
 export const ADMIN_PAGE_SIZE = 12;
-export const CATALOGUE_IMAGE_OPTIONS = [
+const LEGACY_CATALOGUE_IMAGE_OPTIONS = [
   "/catalogue/column-trouser.svg",
   "/catalogue/editorial.svg",
   "/catalogue/fold-cardholder.svg",
@@ -12,6 +13,10 @@ export const CATALOGUE_IMAGE_OPTIONS = [
   "/catalogue/vale-carryall.svg",
   "/catalogue/vale-rib-cardigan.svg",
 ] as const;
+export const CATALOGUE_IMAGE_OPTIONS = [
+  ...PHOTOGRAPHY_OPTIONS,
+  ...LEGACY_CATALOGUE_IMAGE_OPTIONS,
+] as unknown as [string, ...string[]];
 
 const optionalText = (maximum: number) =>
   z.string().trim().max(maximum).transform((value) => value || null);

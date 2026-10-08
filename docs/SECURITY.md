@@ -16,6 +16,8 @@ Every successful mutation writes a non-zero `InventoryMovement` in the same tran
 
 Administrative catalogue pages require an active authenticated user. Reads are available to ADMIN and STAFF; all product, variant, category, image, archive, and inventory mutations call the ADMIN role guard inside the Server Action. UI visibility is not treated as authorization. Zod schemas bound text, identifiers, prices, stock, slugs, and booleans. Image values come from a fixed local allow-list, so the feature does not introduce uploads, remote fetches, or stored arbitrary URLs.
 
+The photography manifest contains only public asset paths, descriptive alternative text, product slugs, colours, and presentation roles. It contains no stock authority, admin-only inventory fields, customer data, credentials, or remote-fetch capability. Variant imagery is presentational: cart and checkout still resolve the selected variant against current server-side catalogue and inventory state.
+
 Administrative stock setting uses the existing inventory service and includes the quantity observed by the form. A stale write fails before changing stock or creating a movement. Products and variants are archived instead of deleted, and a category with visible products cannot be deactivated. Catalogue actions return safe operational messages and do not expose database diagnostics or secrets.
 
 ## Guest cart boundary

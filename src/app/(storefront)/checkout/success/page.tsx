@@ -5,7 +5,7 @@ import { ClearVerifiedCart } from "@/components/payment/clear-verified-cart";
 import { shouldClearCart } from "@/payment/payment-status";
 import { getCustomerPaymentStatus } from "@/server/payment/payment-status";
 
-export const metadata: Metadata = { title: "Order status" };
+export const metadata: Metadata = { title: "Order status", robots: { index: false, follow: false } };
 export const instant = false;
 
 const copy = {

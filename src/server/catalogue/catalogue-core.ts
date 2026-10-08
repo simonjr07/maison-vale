@@ -1,4 +1,5 @@
-import { getVariantAvailability } from "../inventory/inventory-domain";
+import { getVariantAvailability } from "../inventory/inventory-domain.ts";
+import { imageMatchesVariant } from "../../catalogue/image-assets.ts";
 
 export type CatalogueImageRecord = {
   url: string;
@@ -58,6 +59,7 @@ export type ProductDetailDto = ProductCardDto & {
     price: string;
     availability: "In stock" | "Out of stock" | "Unavailable";
     stockMessage: string;
+    images: Array<{ url: string; alt: string }>;
   }>;
 };
 
@@ -112,6 +114,28 @@ export function selectPrimaryImage(images: CatalogueImageRecord[]) {
   return primary
     ? { url: primary.url, alt: primary.altText }
     : FALLBACK_IMAGE;
+}
+
+export function selectVariantImages(
+  images: CatalogueImageRecord[],
+  color: string | null,
+) {
+  const sorted = [...images].sort(
+    (left, right) => left.sortOrder - right.sortOrder,
+  );
+  const matching = sorted.filter((image) => imageMatchesVariant(image.url, color));
+  const selected = matching.length > 0 ? matching : sorted;
+
+  return selected.length > 0
+    ? selected.map((image) => ({ url: image.url, alt: image.altText }))
+    : [FALLBACK_IMAGE];
+}
+
+export function selectVariantPrimaryImage(
+  images: CatalogueImageRecord[],
+  color: string | null,
+) {
+  return selectVariantImages(images, color)[0];
 }
 
 export function isPublicProduct(product: CatalogueProductRecord) {
@@ -217,6 +241,7 @@ export function toProductDetailDto(
         price: formatUsd(variant.priceCents),
         availability: getVariantAvailability(stockInput),
         stockMessage: getPublicStockMessage(stockInput),
+        images: selectVariantImages(product.images, variant.color),
       };
     }),
   };

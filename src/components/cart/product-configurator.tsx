@@ -22,15 +22,30 @@ import {
 
 type Variant = ProductDetailDto["variants"][number];
 
-export function ProductConfigurator({ variants }: { variants: Variant[] }) {
+export function ProductConfigurator({
+  variants,
+  selectedVariantId: controlledVariantId,
+  onVariantChange,
+}: {
+  variants: Variant[];
+  selectedVariantId?: string;
+  onVariantChange?: (variantId: string) => void;
+}) {
   const { cart, replaceCart, announce, hydrated } = useCart();
   const initialVariantId = useMemo(() => getInitialVariantId(variants), [variants]);
-  const [selectedVariantId, setSelectedVariantId] = useState(initialVariantId);
+  const [internalVariantId, setInternalVariantId] = useState(initialVariantId);
   const [quantity, setQuantity] = useState(1);
   const [status, setStatus] = useState("");
   const [addedNotice, setAddedNotice] = useState<AddedToBagNotice | null>(null);
   const [pending, setPending] = useState(false);
+  const selectedVariantId = controlledVariantId ?? internalVariantId;
   const selected = getSelectedVariant(variants, selectedVariantId);
+
+  function selectVariant(variantId: string) {
+    setInternalVariantId(variantId);
+    onVariantChange?.(variantId);
+    clearFeedback();
+  }
 
   function clearFeedback() {
     setStatus("");
@@ -112,10 +127,7 @@ export function ProductConfigurator({ variants }: { variants: Variant[] }) {
                     checked={selectedVariantId === variant.id}
                     disabled={!selectable}
                     name="variant"
-                    onChange={() => {
-                      setSelectedVariantId(variant.id);
-                      clearFeedback();
-                    }}
+                    onChange={() => selectVariant(variant.id)}
                     type="radio"
                     value={variant.id}
                   />

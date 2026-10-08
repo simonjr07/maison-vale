@@ -39,6 +39,8 @@ TASK-010 provides searchable, paginated product operations; product and variant 
 
 Product details present variant-aware availability with exact counts only when ten or fewer units remain. Sold-out variants remain visible for clarity but cannot be added. Successful additions stay on the product page and provide an accessible `Added to bag` confirmation with a direct bag link. These messages are advisory; cart resolution and checkout independently validate current stock.
 
+TASK-013 supplies complete, optimized local product photography for every public seeded colourway, with accessible galleries that follow colour selection while size-only variants reuse imagery. The storefront must remain usable from 320 px through wide desktop layouts, at 200% zoom, with keyboard-visible focus, skip navigation, clear landmarks, meaningful image alternatives, and reduced-motion support. Checkout and order status pages are excluded from indexing; no visual treatment may weaken payment, inventory, privacy, authentication, or authorization rules.
+
 TASK-006 provides a browser-persisted guest cart, variant selection, quantity updates, removal, current server-resolved pricing, and clear stale-item handling. The cart is a convenience layer: it stores no authoritative price or stock value and does not reserve inventory.
 
 TASK-007 provides a U.S.-only guest checkout form and a stateless server preparation boundary. PostgreSQL prices and availability are re-resolved independently from the cart page. Standard shipping is $8 below $150 and free at or above $150; automated tax remains explicitly unavailable and authoritative tax is $0. Validation creates no order, payment, customer profile, reservation, inventory movement, or stored address.

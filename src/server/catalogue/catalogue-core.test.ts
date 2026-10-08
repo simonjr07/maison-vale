@@ -10,6 +10,8 @@ import {
   getPriceDisplay,
   getPublicStockMessage,
   selectPrimaryImage,
+  selectVariantImages,
+  selectVariantPrimaryImage,
   toProductDetailDto,
 } from "./catalogue-core";
 import { getVariantAvailability } from "../inventory/inventory-domain";
@@ -131,6 +133,28 @@ describe("catalogue presentation", () => {
       alt: "Primary view",
     });
     expect(selectPrimaryImage([])).toEqual(FALLBACK_IMAGE);
+  });
+
+  it("selects the gallery and primary image for the chosen colour", () => {
+    const images = [
+      { url: "/catalogue/photography/fold-cardholder-saddle-hero.webp", altText: "Saddle hero", sortOrder: 0 },
+      { url: "/catalogue/photography/fold-cardholder-saddle-detail.webp", altText: "Saddle detail", sortOrder: 1 },
+      { url: "/catalogue/photography/fold-cardholder-black-hero.webp", altText: "Black hero", sortOrder: 2 },
+      { url: "/catalogue/photography/fold-cardholder-black-detail.webp", altText: "Black detail", sortOrder: 3 },
+    ];
+
+    expect(selectVariantImages(images, "Black").map((image) => image.alt)).toEqual([
+      "Black hero",
+      "Black detail",
+    ]);
+    expect(selectVariantPrimaryImage(images, "Saddle").url).toContain("saddle-hero");
+  });
+
+  it("keeps legacy galleries available when no colour metadata is known", () => {
+    expect(selectVariantImages(publicProduct.images, "Clay")).toEqual([
+      { url: "/primary.svg", alt: "Primary view" },
+      { url: "/second.svg", alt: "Second view" },
+    ]);
   });
 
   it("maps product detail data without internal catalogue fields", () => {
