@@ -94,6 +94,17 @@ describe("cart state helpers", () => {
     expect(getCartCount(second.cart.items)).toBe(5);
   });
 
+  it("adds repeated selections to the existing variant quantity", () => {
+    const first = addCartItem(emptyCart, firstId, 2);
+    expect(first.ok).toBe(true);
+    if (!first.ok) return;
+
+    const repeated = addCartItem(first.cart, firstId, 3);
+    expect(repeated.ok).toBe(true);
+    if (!repeated.ok) return;
+    expect(repeated.cart.items).toEqual([{ variantId: firstId, quantity: 5 }]);
+  });
+
   it("rejects updates outside cart limits", () => {
     const cart = { version: CART_VERSION, items: [{ variantId: firstId, quantity: 2 }] };
     expect(updateCartItemQuantity(cart, firstId, 0).ok).toBe(false);

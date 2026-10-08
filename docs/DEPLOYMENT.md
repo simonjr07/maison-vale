@@ -21,6 +21,8 @@ Likely configuration responsibilities:
 
 Production must provide strong, independent `AUTH_SECRET`, `RATE_LIMIT_SECRET`, and `ORDER_LOOKUP_SECRET` values. Rotating `AUTH_SECRET` invalidates administrative sessions; rotating the order lookup secret invalidates short-lived guest lookup sessions. Provision administrative accounts through a controlled one-off environment or local direct database connection, never through a public route.
 
+Catalogue management requires no new environment values or storage service. Product images are selected from reviewed files deployed under `public/catalogue`; adding an asset requires a code review and an update to the server-side allow-list. Confirm ADMIN and STAFF role assignments before hosted QA because STAFF access is intentionally read-only.
+
 Start the local database with `docker compose up -d db`, then run generation, migration, status, seed, and smoke scripts from `package.json`. Production migrations must be reviewed and applied as an explicit deployment step; destructive resets are not part of the deployment workflow. Hosted QA should eventually verify payments, webhooks, order state, inventory behavior, responsive layout, and accessibility.
 
 For local webhook QA, run the application and use Stripe CLI forwarding to `http://localhost:3000/api/stripe/webhook`, then set the listener's `whsec_` value in the ignored `.env`. Missing payment configuration fails only payment routes; unrelated storefront pages continue to run. Pending orders abandoned before payment are retained for audit and require a future expiry or cleanup job. Production activation is explicitly outside TASK-008.

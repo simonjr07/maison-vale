@@ -47,6 +47,10 @@
 - Public order DTOs omit email, street address, SKU, internal/provider ids, issue messages, and internal status notes. Recipient and postal details are masked.
 - Guest lookup is read-only and cannot alter payment, fulfillment, inventory, or webhook records.
 - Email-plus-reference is accepted as lightweight V1 guest verification. Time-limited email codes or magic links are preferred future hardening when transactional email infrastructure exists.
+- TASK-010 catalogue and inventory reads are available to active ADMIN and STAFF users. Product, variant, image, category, archive, and inventory mutations are ADMIN-only until a finer-grained staff permission model is defined.
+- Administrative image management is limited to one primary image selected from a server allow-list of repository-owned catalogue assets. Uploads and arbitrary external URLs remain deferred.
+- New administrative variants start at zero stock. Opening stock and later corrections are separate optimistic-concurrency inventory operations so every change produces an immutable movement record.
+- Public product details disclose exact stock only from one through ten units. Larger quantities use `In stock`, zero uses `Sold out`, and unavailable records expose no count. Cart and checkout remain authoritative and no display reserves stock.
 
 ## Unresolved
 

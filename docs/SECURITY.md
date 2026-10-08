@@ -12,7 +12,11 @@ The initial migration enforces non-negative inventory and monetary values, posit
 
 TASK-005 keeps stock authoritative at `ProductVariant`. Inventory commands are server-only and validated at runtime; individual adjustment quantities and explicit stock levels are capped at 100,000 units. Purchase-style decrements use an atomic conditional update, so concurrent callers cannot both consume the same final unit. PostgreSQL retains the non-negative stock check as a final boundary.
 
-Every successful mutation writes a non-zero `InventoryMovement` in the same transaction. Failed mutations roll back without an audit row. Movement references must be supplied as a complete type/id pair, and existing history prevents variant deletion. Public availability remains advisory and exact quantities are not included in catalogue DTOs.
+Every successful mutation writes a non-zero `InventoryMovement` in the same transaction. Failed mutations roll back without an audit row. Movement references must be supplied as a complete type/id pair, and existing history prevents variant deletion. Public availability remains advisory. Product-detail DTOs disclose an exact count only for the intentionally bounded low-stock range of one through ten; larger quantities are represented only as `In stock`, and raw stock fields are never serialized.
+
+Administrative catalogue pages require an active authenticated user. Reads are available to ADMIN and STAFF; all product, variant, category, image, archive, and inventory mutations call the ADMIN role guard inside the Server Action. UI visibility is not treated as authorization. Zod schemas bound text, identifiers, prices, stock, slugs, and booleans. Image values come from a fixed local allow-list, so the feature does not introduce uploads, remote fetches, or stored arbitrary URLs.
+
+Administrative stock setting uses the existing inventory service and includes the quantity observed by the form. A stale write fails before changing stock or creating a movement. Products and variants are archived instead of deleted, and a category with visible products cannot be deactivated. Catalogue actions return safe operational messages and do not expose database diagnostics or secrets.
 
 ## Guest cart boundary
 

@@ -69,6 +69,18 @@ describe("inventory command validation", () => {
     ).toBe(0);
   });
 
+  it("accepts an expected quantity for concurrency-safe stock setting", () => {
+    const parsed = parseInventoryAdjustment({
+      ...validCommand,
+      operation: "SET",
+      quantity: 4,
+      expectedQuantity: 3,
+      reason: "MANUAL_ADJUSTMENT",
+    });
+    expect(parsed.operation).toBe("SET");
+    if (parsed.operation === "SET") expect(parsed.expectedQuantity).toBe(3);
+  });
+
   it("requires reference fields to be supplied as a pair", () => {
     expect(() =>
       parseInventoryAdjustment({ ...validCommand, referenceType: "ORDER" }),

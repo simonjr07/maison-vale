@@ -26,7 +26,7 @@ The initial SQL migration adds checks for non-negative variant prices, stock, or
 
 The TASK-003 migration adds a unique HMAC-key/window pair, expiration index, and non-negative attempt constraint for login rate limiting. Buckets intentionally store no raw email address or client address. Expired-bucket cleanup can be introduced as a scheduled maintenance operation before production traffic.
 
-The TASK-005 migrations add the inventory movement ledger, reason enum, variant/date and reference indexes, a non-zero delta check, and a paired-reference check. Movement rows restrict variant deletion so audit history cannot disappear through a catalogue cascade. Product archival and deletion policy remains future operational work.
+The TASK-005 migrations add the inventory movement ledger, reason enum, variant/date and reference indexes, a non-zero delta check, and a paired-reference check. Movement rows restrict variant deletion so audit history cannot disappear through a catalogue cascade. TASK-010 introduces no schema migration: administrative workflows archive products and variants with existing activity/publication flags, and stock auditability continues through `InventoryMovement`.
 
 ## Seed data
 

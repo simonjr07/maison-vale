@@ -8,6 +8,7 @@ import {
   findActiveCategoryBySlug,
   findPublishedProductBySlug,
   getPriceDisplay,
+  getPublicStockMessage,
   selectPrimaryImage,
   toProductDetailDto,
 } from "./catalogue-core";
@@ -81,6 +82,29 @@ describe("catalogue visibility", () => {
 });
 
 describe("catalogue presentation", () => {
+  it.each([
+    { stockQuantity: 11, expected: "In stock" },
+    { stockQuantity: 10, expected: "Only 10 left in stock" },
+    { stockQuantity: 1, expected: "Only 1 left in stock" },
+    { stockQuantity: 0, expected: "Sold out" },
+  ])("maps $stockQuantity units to the public stock message", ({ stockQuantity, expected }) => {
+    expect(getPublicStockMessage({
+      productActive: true,
+      productPublished: true,
+      variantActive: true,
+      stockQuantity,
+    })).toBe(expected);
+  });
+
+  it("does not disclose stock for an unavailable variant", () => {
+    expect(getPublicStockMessage({
+      productActive: true,
+      productPublished: true,
+      variantActive: false,
+      stockQuantity: 4,
+    })).toBe("Unavailable");
+  });
+
   it("maps variant availability accurately", () => {
     const availability = (variant: (typeof publicProduct.variants)[number]) =>
       getVariantAvailability({
@@ -122,5 +146,10 @@ describe("catalogue presentation", () => {
     expect(dto).not.toHaveProperty("published");
     expect(dto.variants[0]).not.toHaveProperty("stockQuantity");
     expect(dto.variants[0]).not.toHaveProperty("sku");
+    expect(dto.variants.map((variant) => variant.stockMessage)).toEqual([
+      "Only 4 left in stock",
+      "Sold out",
+      "Unavailable",
+    ]);
   });
 });

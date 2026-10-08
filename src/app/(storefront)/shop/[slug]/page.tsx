@@ -101,8 +101,8 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
           )}
 
           <aside className="mt-8 border-l-2 border-[#9a5f42] bg-[#faf8f3] px-5 py-4 text-xs leading-5 text-[#20211d]/60">
-            Availability is advisory and may change. Stock will be validated
-            during a future checkout flow.
+            Availability is informational and may change. Stock is confirmed
+            again during checkout, and adding an item to your bag does not reserve it.
           </aside>
         </div>
       </div>
