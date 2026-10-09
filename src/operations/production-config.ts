@@ -1,4 +1,9 @@
-import { assertSecureDatabaseConnection } from "../server/db/connection-security.ts";
+import {
+  assertSecureDatabaseConnection,
+  isLocalDatabaseHost,
+  isNeonDatabaseHost,
+  isNeonPooledHost,
+} from "../server/db/connection-security.ts";
 
 type ProductionEnvironment = Record<string, string | undefined>;
 
@@ -18,6 +23,7 @@ export function checkProductionConfiguration(
   const blockers: string[] = [];
   const warnings: string[] = [];
   const appUrl = environment.APP_URL?.trim();
+  const parsedDatabaseUrls = new Map<"DATABASE_URL" | "DIRECT_URL", URL>();
 
   if (!options.migrationOnly) {
     try {
@@ -48,6 +54,12 @@ export function checkProductionConfiguration(
     }
     try {
       assertSecureDatabaseConnection(value, { NODE_ENV: "production" });
+      const databaseUrl = new URL(value);
+      if (isLocalDatabaseHost(databaseUrl.hostname)) {
+        blockers.push(`${name} must reference hosted PostgreSQL for a production release.`);
+      } else {
+        parsedDatabaseUrls.set(name, databaseUrl);
+      }
     } catch {
       blockers.push(`${name} must be a valid TLS-protected PostgreSQL connection string.`);
     }
@@ -58,20 +70,38 @@ export function checkProductionConfiguration(
     environment.DIRECT_URL &&
     environment.DATABASE_URL === environment.DIRECT_URL
   ) {
-    blockers.push("Runtime and migration database connections must use separate endpoints and roles.");
+    blockers.push("Runtime and migration database connections must use distinct pooled and direct endpoints.");
   }
   if (environment.DATABASE_URL) {
     try {
       const runtimeUrl = new URL(environment.DATABASE_URL);
-      if (
-        runtimeUrl.hostname.endsWith(".pooler.supabase.com") &&
-        runtimeUrl.port === "6543" &&
-        runtimeUrl.searchParams.get("pgbouncer") !== "true"
-      ) {
-        blockers.push("Supabase transaction-pooler DATABASE_URL must include pgbouncer=true.");
+      if (!isLocalDatabaseHost(runtimeUrl.hostname) && !isNeonDatabaseHost(runtimeUrl.hostname)) {
+        blockers.push("DATABASE_URL must use the intended Neon PostgreSQL project.");
+      } else if (isNeonDatabaseHost(runtimeUrl.hostname) && !isNeonPooledHost(runtimeUrl.hostname)) {
+        blockers.push("Neon DATABASE_URL must use the pooled endpoint whose hostname ends in -pooler.");
       }
     } catch {
       // The general database validation above reports malformed values.
+    }
+  }
+  if (options.requireDirectUrl && environment.DIRECT_URL) {
+    try {
+      const directUrl = new URL(environment.DIRECT_URL);
+      if (!isLocalDatabaseHost(directUrl.hostname) && !isNeonDatabaseHost(directUrl.hostname)) {
+        blockers.push("DIRECT_URL must use the intended Neon PostgreSQL project.");
+      } else if (isNeonPooledHost(directUrl.hostname)) {
+        blockers.push("Neon DIRECT_URL must use the unpooled endpoint without -pooler in its hostname.");
+      }
+    } catch {
+      // The general database validation above reports malformed values.
+    }
+  }
+  const runtimeUrl = parsedDatabaseUrls.get("DATABASE_URL");
+  const directUrl = parsedDatabaseUrls.get("DIRECT_URL");
+  if (options.requireDirectUrl && runtimeUrl && directUrl) {
+    const expectedDirectHost = runtimeUrl.hostname.replace(/-pooler(?=\.)/i, "");
+    if (directUrl.hostname !== expectedDirectHost || directUrl.pathname !== runtimeUrl.pathname) {
+      blockers.push("DATABASE_URL and DIRECT_URL must target the same Neon endpoint and database.");
     }
   }
 

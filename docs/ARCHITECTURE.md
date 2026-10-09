@@ -62,7 +62,7 @@ UI components should handle presentation and user interaction. Server actions or
 
 Runtime database access uses `DATABASE_URL`; migration commands use `DIRECT_URL`. Generated Prisma code is not committed. Future server-action boundaries and route handlers will be introduced with their respective feature tasks.
 
-For the hosted topology, `DATABASE_URL` is a TLS-protected Supabase transaction-pooler connection with Prisma pooler compatibility enabled. Each production function holds at most one application-side connection. `DIRECT_URL` belongs only to the controlled migration environment and uses a distinct role; Vercel builds generate the client with no database access and do not run migrations or seeds.
+For the hosted topology, `DATABASE_URL` is Neon's TLS-protected pooled connection whose hostname includes `-pooler`. Each production function holds at most one application-side connection. `DIRECT_URL` is the matching unpooled Neon connection and belongs only to the controlled migration environment; Vercel builds generate the client with no database access and do not run migrations or seeds.
 
 `robots.txt` and the request-time sitemap make the indexing boundary explicit. The sitemap reads current published catalogue slugs and includes only the homepage, shop, collections, and product details. Administrative, API, cart, checkout, and order routes are excluded and retain response-level noindex controls.
 

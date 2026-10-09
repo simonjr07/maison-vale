@@ -31,7 +31,7 @@ No final portfolio screenshots have been captured yet. Capture them only from a 
 
 ## Evidence captures kept outside the public gallery
 
-Retain redacted evidence for the Vercel deployment result, `deployment:check`, migration status, CI, Stripe event delivery with HTTP status, security headers, robots and sitemap responses, accessibility checks, and Supabase backup settings. These captures support the case study but should not expose project ids, database hosts, event ids, account email addresses, or secret names paired with values.
+Retain redacted evidence for the Vercel deployment result, `deployment:check`, migration status, CI, Stripe event delivery with HTTP status, security headers, robots and sitemap responses, accessibility checks, and Neon backup settings. These captures support the case study but should not expose project ids, database hosts, event ids, account email addresses, or secret names paired with values.
 
 ## QA before publishing
 

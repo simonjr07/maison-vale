@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { assertSecureDatabaseConnection, getRuntimePoolOptions } from "./connection-security";
+import {
+  assertSecureDatabaseConnection,
+  getRuntimePoolOptions,
+  isNeonDatabaseHost,
+  isNeonPooledHost,
+} from "./connection-security";
 
 describe("database connection security", () => {
   it("allows local PostgreSQL without TLS for development and local production builds", () => {
@@ -21,5 +26,20 @@ describe("database connection security", () => {
       "postgresql://user:pass@db.example/app?sslmode=require",
       { NODE_ENV: "production" },
     )).toMatchObject({ max: 1, connectionTimeoutMillis: 10_000 });
+  });
+
+  it("recognizes Neon pooled and direct hostnames", () => {
+    expect(isNeonDatabaseHost("ep-example.eu-west-2.aws.neon.tech")).toBe(true);
+    expect(isNeonPooledHost("ep-example-pooler.eu-west-2.aws.neon.tech")).toBe(true);
+    expect(isNeonPooledHost("ep-example.eu-west-2.aws.neon.tech")).toBe(false);
+  });
+
+  it("honors Neon's channel binding parameter without changing the connection string", () => {
+    const connectionString = "postgresql://user:pass@ep-example-pooler.eu-west-2.aws.neon.tech/app?sslmode=require&channel_binding=require";
+    expect(getRuntimePoolOptions(connectionString, { NODE_ENV: "production" })).toMatchObject({
+      connectionString,
+      enableChannelBinding: true,
+      max: 1,
+    });
   });
 });

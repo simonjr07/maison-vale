@@ -2,24 +2,25 @@
 
 This checklist prepares Maison Vale for a portfolio sandbox deployment. It does not authorize live commerce. Keep Stripe in test mode and capture evidence without exposing credentials, full customer data, provider identifiers, or internal diagnostic text.
 
-Current status: repository preparation is in progress. No hosted URL, Supabase migration, remote catalogue seed, production administrator, Stripe Dashboard destination, hosted payment, browser QA, log review, backup restore, or final screenshot has been verified. Complete account-owned steps in the relevant dashboard; never paste credentials into chat.
+Current status: repository preparation is in progress. The Neon project and two connection strings exist, but no connection or write was attempted. No hosted URL, Neon migration, remote catalogue seed, production administrator, Stripe Dashboard destination, hosted payment, browser QA, log review, backup restore, or final screenshot has been verified. Complete account-owned steps in the relevant dashboard; never paste credentials into chat.
 
 ## Before deployment
 
 - [x] Review the TASK-014 security audit and carry every remaining blocker into hosted QA.
-- [ ] Confirm the intended Vercel project, Supabase project, canonical HTTPS hostname, owners, and rollback contact.
+- [ ] Confirm the intended Vercel project, Neon project and branch, canonical HTTPS hostname, owners, and rollback contact.
 - [ ] Protect the deployment branch and require the CI workflow to pass.
 - [ ] Run `npm ci`, Prisma generation and validation, lint, typecheck, unit tests, every PostgreSQL integration suite, production build, both dependency audits, and `git diff --check` from the release revision.
 - [ ] Review all migrations. Use `prisma migrate deploy`; never use reset, development migration generation, or seed against production.
 - [x] Confirm no real secret, `.env` file, customer export, or production credential is tracked; the live-key test sentinel is intentional.
 
-## Supabase
+## Neon PostgreSQL
 
-- [ ] Create separate runtime and migration roles when supported. Grant the runtime role only required table and sequence access; reserve DDL for the migration role.
-- [ ] Set Vercel `DATABASE_URL` to the supported transaction-pooler endpoint with `pgbouncer=true` and TLS.
-- [ ] Keep the distinct `DIRECT_URL` in the controlled migration environment only; do not expose the migration role to the Vercel web runtime.
+- [ ] Confirm the saved runtime URL uses Neon's `-pooler` hostname and retains provider-supplied TLS parameters. Do not append port 6543 or `pgbouncer=true`.
+- [ ] Set Vercel `DATABASE_URL` to that pooled URL as a Secret.
+- [ ] Keep the distinct, unpooled `DIRECT_URL` in the controlled migration environment only; do not expose it to the Vercel web runtime.
+- [ ] Use the narrowest practical role grants; reserve schema-changing privileges for controlled migrations when separate roles are available.
 - [ ] Require TLS in both URLs with an approved `sslmode` and confirm certificate behavior for the selected mode.
-- [ ] Apply reviewed migrations once, then verify migration status. Do not run the development seed.
+- [ ] Run the guarded migration status command, obtain explicit approval, apply the five reviewed migrations once with the guarded deploy command, then verify status again. Do not run the development seed.
 - [ ] Configure backups and perform a documented restore drill before claiming production readiness.
 - [ ] Confirm connection and pool limits against Vercel concurrency; record the chosen limits.
 
@@ -83,7 +84,8 @@ Current status: repository preparation is in progress. No hosted URL, Supabase m
 
 ## External actions needed to continue
 
-- [ ] The owner creates or selects the Supabase and Vercel projects and records the intended region and canonical hostname.
+- [x] The owner created the Neon project and securely saved pooled and direct connection strings.
+- [ ] The owner selects the Vercel project and confirms the Neon branch, region, canonical hostname, owners, and rollback contact.
 - [ ] The owner configures sensitive values directly in the provider dashboards without sharing them in chat.
 - [ ] The owner confirms that the reviewed remote migrations may be applied.
 - [ ] The owner separately confirms whether the fictional catalogue seed may run against the empty hosted database.

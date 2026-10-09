@@ -4,8 +4,8 @@ import { checkProductionConfiguration } from "./production-config";
 
 const validEnvironment = {
   APP_URL: "https://maison-vale.example",
-  DATABASE_URL: "postgresql://runtime:secret@pool.example/app?sslmode=require",
-  DIRECT_URL: "postgresql://migration:secret@db.example/app?sslmode=verify-full",
+  DATABASE_URL: "postgresql://runtime:secret@ep-maison-vale-pooler.eu-west-2.aws.neon.tech/app?sslmode=require&channel_binding=require",
+  DIRECT_URL: "postgresql://migration:secret@ep-maison-vale.eu-west-2.aws.neon.tech/app?sslmode=require&channel_binding=require",
   AUTH_SECRET: "a".repeat(32),
   RATE_LIMIT_SECRET: "b".repeat(32),
   ORDER_LOOKUP_SECRET: "c".repeat(32),
@@ -34,15 +34,62 @@ describe("production configuration", () => {
       { ...validEnvironment, DIRECT_URL: validEnvironment.DATABASE_URL },
       { requireDirectUrl: true, migrationOnly: true },
     );
-    expect(shared.blockers.join(" ")).toMatch(/separate endpoints and roles/);
+    expect(shared.blockers.join(" ")).toMatch(/distinct pooled and direct endpoints/);
   });
 
-  it("requires Prisma pooler compatibility on Supabase transaction endpoints", () => {
+  it("requires a Neon pooler for runtime without adding Supabase parameters", () => {
     const report = checkProductionConfiguration({
       ...validEnvironment,
-      DATABASE_URL: "postgresql://runtime:secret@aws-0-region.pooler.supabase.com:6543/postgres?sslmode=require",
+      DATABASE_URL: "postgresql://runtime:secret@ep-maison-vale.eu-west-2.aws.neon.tech/app?sslmode=require",
     });
-    expect(report.blockers.join(" ")).toMatch(/pgbouncer=true/);
+    expect(report.blockers.join(" ")).toMatch(/hostname ends in -pooler/);
+
+    const pooled = checkProductionConfiguration({
+      ...validEnvironment,
+      DATABASE_URL: "postgresql://runtime:secret@ep-maison-vale-pooler.eu-west-2.aws.neon.tech/app?sslmode=require",
+      DIRECT_URL: undefined,
+    });
+    expect(pooled.blockers).toEqual([]);
+  });
+
+  it("requires the unpooled Neon endpoint for controlled migrations", () => {
+    const report = checkProductionConfiguration(
+      { ...validEnvironment, DIRECT_URL: validEnvironment.DATABASE_URL },
+      { requireDirectUrl: true, migrationOnly: true },
+    );
+    expect(report.blockers.join(" ")).toMatch(/unpooled endpoint/);
+  });
+
+  it("requires runtime and migration URLs to target the same Neon database", () => {
+    const report = checkProductionConfiguration(
+      {
+        ...validEnvironment,
+        DIRECT_URL: "postgresql://migration:secret@ep-other.eu-west-2.aws.neon.tech/other?sslmode=require",
+      },
+      { requireDirectUrl: true, migrationOnly: true },
+    );
+    expect(report.blockers.join(" ")).toMatch(/same Neon endpoint and database/);
+  });
+
+  it("rejects a different hosted PostgreSQL provider for this Neon release", () => {
+    const report = checkProductionConfiguration({
+      ...validEnvironment,
+      DATABASE_URL: "postgresql://runtime:secret@pool.example.com/app?sslmode=require",
+      DIRECT_URL: undefined,
+    });
+    expect(report.blockers.join(" ")).toMatch(/intended Neon PostgreSQL project/);
+  });
+
+  it("rejects local database targets in production checks", () => {
+    const report = checkProductionConfiguration(
+      {
+        ...validEnvironment,
+        DATABASE_URL: "postgresql://runtime:secret@localhost:5435/app",
+        DIRECT_URL: "postgresql://migration:secret@127.0.0.1:5435/app",
+      },
+      { requireDirectUrl: true, migrationOnly: true },
+    );
+    expect(report.blockers.join(" ")).toMatch(/hosted PostgreSQL/);
   });
 
   it("rejects live Stripe keys, weak shared secrets, and unsafe operator gates", () => {

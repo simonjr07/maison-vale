@@ -6,7 +6,7 @@
 - Stripe integration will use test mode initially.
 - PostgreSQL is the target relational database.
 - Payment state and fulfillment/order state are separate concepts.
-- Vercel and Supabase are the target production platforms.
+- Vercel and Neon PostgreSQL are the target production platforms.
 - The database and server are authoritative for inventory and totals.
 - Prisma ORM 7 uses `@prisma/adapter-pg`; runtime and migration connections are separated through `DATABASE_URL` and `DIRECT_URL`.
 - V1 supports USD only and stores money as integer cents.
