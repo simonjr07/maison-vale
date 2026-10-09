@@ -7,6 +7,8 @@ import { PrismaClient } from "../src/generated/prisma/client.ts";
 import { catalogueCategories, getProductImages, publicCatalogueProducts } from "../src/operations/catalogue-seed-data.ts";
 import {
   executePublicCatalogueBootstrap,
+  PUBLIC_CATALOGUE_LOCK_ID,
+  PUBLIC_CATALOGUE_TRANSACTION_OPTIONS,
   PublicCatalogueBootstrapError,
   runPublicCatalogueBootstrap,
 } from "../src/operations/public-catalogue-bootstrap.ts";
@@ -81,6 +83,26 @@ async function getBusinessCounts(database) {
 
 try {
   const definitions = createDefinitions("preserve");
+  let confirmLockAcquired;
+  let releaseLock;
+  const lockAcquired = new Promise((resolve) => { confirmLockAcquired = resolve; });
+  const lockRelease = new Promise((resolve) => { releaseLock = resolve; });
+  const lockHolder = prisma.$transaction(async (transaction) => {
+    await transaction.$queryRaw`SELECT pg_advisory_xact_lock(${PUBLIC_CATALOGUE_LOCK_ID})::text AS lock_state`;
+    confirmLockAcquired();
+    await lockRelease;
+  }, PUBLIC_CATALOGUE_TRANSACTION_OPTIONS);
+  await lockAcquired;
+  try {
+    await runPublicCatalogueBootstrap(prisma, definitions);
+    throw new Error("A concurrent bootstrap was not rejected.");
+  } catch (error) {
+    verify(error instanceof PublicCatalogueBootstrapError && error.code === "CONCURRENT_RUN", "A concurrent bootstrap did not fail safely before writes.");
+  } finally {
+    releaseLock();
+    await lockHolder;
+  }
+
   try {
     await prisma.$transaction(async (transaction) => {
       const businessCountsBefore = await getBusinessCounts(transaction);
@@ -150,10 +172,14 @@ try {
     throw new Error("A database constraint failure did not reject the bootstrap.");
   } catch (error) {
     verify(error instanceof PublicCatalogueBootstrapError && error.code === "DATABASE_FAILURE", "The database failure was not normalized safely.");
+    verify(error.diagnostic?.stage === "variant-creation", "The database failure did not identify its safe operation stage.");
+    verify(error.diagnostic?.category === "driver", `The adapter-level database failure was not categorized safely: ${JSON.stringify(error.diagnostic)}.`);
+    verify(error.diagnostic?.prismaCode === "P2039", "The adapter-level Prisma code was not retained.");
+    verify(!error.message.includes("rollback-test"), "The diagnostic exposed underlying database details.");
   }
   verify(await prisma.category.count({ where: { slug: { in: rollbackDefinitions.categories.map((category) => category.slug) } } }) === 0, "A failed bootstrap did not roll back all catalogue creations.");
 
-  console.log("Public catalogue bootstrap integration verification passed: exact counts, additive preservation, idempotency, conflict preflight, business-data isolation, and transaction rollback.");
+  console.log("Public catalogue bootstrap integration verification passed: exact counts, concurrent-run rejection, additive preservation, idempotency, conflict preflight, redacted diagnostics, business-data isolation, and transaction rollback.");
 } finally {
   await prisma.$disconnect();
 }
