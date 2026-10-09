@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     );
 
     if (event.type !== "checkout.session.completed") {
-      console.info("Stripe webhook ignored.", { eventId: event.id, eventType: event.type });
+      console.info("Stripe webhook ignored.", { eventType: event.type });
       return Response.json({ received: true, outcome: "IGNORED_EVENT_TYPE" });
     }
 
@@ -32,9 +32,7 @@ export async function POST(request: Request) {
     );
 
     console.info("Stripe webhook processed.", {
-      eventId: event.id,
       eventType: event.type,
-      orderNumber: result.orderNumber,
       outcome: result.outcome,
     });
     if (result.outcome === "LIVE_MODE_REJECTED") {

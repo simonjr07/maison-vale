@@ -58,7 +58,7 @@ Money is stored as integer cents and USD is the only supported currency. Shippin
 
 Checkout retries use an HMAC of a client attempt token, a request fingerprint, a unique database constraint, and a stable Stripe idempotency key. Webhook processing claims the Stripe event and payment transition independently, so repeated delivery, concurrent delivery, and a different delayed event cannot repeat business mutations.
 
-The application rejects live Stripe keys, live-mode sessions, and live-mode events. The hosted endpoint will subscribe only to `checkout.session.completed` in a Stripe sandbox. The endpoint secret must come from the hosted Dashboard destination, not a local Stripe CLI listener.
+The application rejects live Stripe keys, live-mode sessions, and live-mode events. The hosted endpoint subscribes to `checkout.session.completed` in a Stripe sandbox. Its endpoint secret comes from the hosted Dashboard destination rather than a local Stripe CLI listener.
 
 ## Inventory integrity
 
@@ -94,9 +94,11 @@ Deployment preparation also exposed a credential-boundary issue: Prisma client g
 
 ## Current result
 
-The repository contains a complete local portfolio application and a deployment-ready verification workflow. The 25 reviewed WebP assets, public metadata routes, runtime pool settings, environment checks, hosted smoke script, CI configuration, and operational checklist are prepared.
+Maison Vale is deployed as a portfolio sandbox at `https://maison-vale-six.vercel.app`. All five migrations and the guarded fictional catalogue bootstrap were completed. Read-only hosted QA verified public routes, catalogue coverage, optimized images, security and indexing boundaries, unauthenticated admin protection, and missing-Origin rejection.
 
-At the time of this document update, no Vercel URL, hosted database migration, hosted seed, Dashboard webhook, end-to-end sandbox payment, production log review, backup restoration, or portfolio screenshot set has been verified. Those outcomes remain explicitly pending user-owned account setup and the TASK-015 hosted QA checklist.
+One Stripe sandbox Checkout was completed and the reviewed persisted state showed a paid payment, processing order, finalized webhook outcome, one inventory movement of minus two units, and no payment exception. This demonstrates one technical sandbox lifecycle; it does not establish production scale or business performance.
+
+The owner reports completing the agreed browser checklist on 9 October 2026, covering desktop storefront/product navigation, mobile responsiveness, basic keyboard navigation and visible focus, browser zoom and motion preferences, the authenticated administrator workflow, and guest order lookup behavior. This is owner-reported verification rather than an automated or formal accessibility result. Hosted STAFF/inactive-user checks, production cookies, advanced lookup and webhook edge cases, formal accessibility verification, provider logs and alerts, backup restoration, rollback, and the final screenshot set remain pending. The concise portfolio narrative is maintained in [`PORTFOLIO_CASE_STUDY.md`](./PORTFOLIO_CASE_STUDY.md), and the evidence boundary is recorded in [`HOSTED_QA.md`](./HOSTED_QA.md).
 
 ## Known limitations
 

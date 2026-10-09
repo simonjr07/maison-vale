@@ -1,5 +1,7 @@
 # Portfolio screenshot plan
 
+The canonical TASK-015 publication plan is now [`PORTFOLIO_SCREENSHOTS.md`](./PORTFOLIO_SCREENSHOTS.md). This earlier checklist is retained for traceability; use the canonical plan for filenames, placement, privacy review, and the capture register.
+
 No final portfolio screenshots have been captured yet. Capture them only from a verified deployment or from a clearly labelled local environment. Use fictional catalogue and customer details, and never show credentials, provider identifiers, browser storage, full addresses, email search terms, logs, or internal diagnostic notes.
 
 ## Capture standards

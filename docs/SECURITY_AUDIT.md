@@ -48,7 +48,7 @@ The following items are intentionally not represented as solved:
 - Carrier tracking and delivery confirmation are manual operational states, not provider evidence.
 - Monitoring, alert routing, log retention/redaction review, database backup restore evidence, and incident-response ownership require hosted operations.
 - The CSP deliberately omits a strict nonce-based script policy until Next.js hydration, errors, and Stripe navigation can be validated on the hosted origin.
-- Vercel/Neon behavior, cookies, headers, database roles, webhook delivery, and rollback have not been proven by local tests. They are required in TASK-015.
+- Read-only hosted QA has verified public Vercel routes, image optimization, security/indexing headers, the unauthenticated admin boundary, and missing-Origin rejection. One signed sandbox payment lifecycle was confirmed through redacted persisted outcomes. The owner reports completing the agreed browser checklist on 9 October 2026, including mobile responsiveness, basic keyboard/focus, zoom, and motion-preference checks; this is not a formal accessibility result. Hosted STAFF/inactive-user authorization, production cookie inspection, provider logs and alerting, Neon role/backup evidence, formal accessibility verification, advanced lookup and webhook edge cases, and rollback still require TASK-015 evidence.
 - Stripe remains test mode only. Live payments must not be enabled without a separate design, operational, legal, and security review.
 
 ## Operator references

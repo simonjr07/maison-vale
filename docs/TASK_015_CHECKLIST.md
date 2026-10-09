@@ -2,7 +2,7 @@
 
 This checklist prepares Maison Vale for a portfolio sandbox deployment. It does not authorize live commerce. Keep Stripe in test mode and capture evidence without exposing credentials, full customer data, provider identifiers, or internal diagnostic text.
 
-Current status: repository preparation is in progress. The owner reports that all five migrations were applied successfully to the intended Neon database. The guarded public catalogue bootstrap has not been executed. No hosted URL, production administrator, Stripe Dashboard destination, hosted payment, browser QA, log review, backup restore, or final screenshot has been verified. Complete account-owned steps in the relevant dashboard; never paste credentials into chat.
+Current status: the portfolio sandbox is deployed at `https://maison-vale-six.vercel.app`. All five migrations and the guarded public catalogue bootstrap were completed against the intended Neon database. Read-only hosted QA passed, and one Stripe sandbox Checkout reached `PAID`, `PROCESSING`, and `PAYMENT_FINALIZED` with one inventory movement of `-2` and no payment exception. The owner reports completing the agreed browser checklist on 9 October 2026, covering desktop storefront/product navigation, mobile responsiveness, basic keyboard navigation and visible focus, browser zoom and motion preferences, the authenticated administrator workflow, and guest order lookup behavior. Hosted STAFF/inactive-user verification, production cookie inspection, advanced lookup and webhook edge cases, formal accessibility verification, provider logs and alerts, backup restoration, rollback, and final screenshots remain pending. See `docs/HOSTED_QA.md` for the evidence boundary. Never paste credentials, customer data, or provider identifiers into project evidence.
 
 ## Before deployment
 
@@ -20,9 +20,9 @@ Current status: repository preparation is in progress. The owner reports that al
 - [ ] Keep the distinct, unpooled `DIRECT_URL` in the controlled migration environment only; do not expose it to the Vercel web runtime.
 - [ ] Use the narrowest practical role grants; reserve schema-changing privileges for controlled migrations when separate roles are available.
 - [ ] Require TLS in both URLs with an approved `sslmode` and confirm certificate behavior for the selected mode.
-- [ ] Run the guarded migration status command, obtain explicit approval, apply the five reviewed migrations once with the guarded deploy command, then verify status again. Do not run the development seed.
+- [x] Run the guarded migration status command, obtain explicit approval, apply the five reviewed migrations once with the guarded deploy command, then verify status again. Do not run the development seed.
 - [ ] Before catalogue bootstrap, reconfirm the pooled and direct URLs target the intended Neon branch/database, verify all five migrations, and record a usable restore point or recovery procedure.
-- [ ] With separate approval, run the documented `--public-catalogue-only` command from a controlled Windows CMD shell. Confirm it reports at most 4 categories, 8 products, 20 variants, and 24 images created; investigate any conflict rather than bypassing it.
+- [x] With separate approval, run the documented `--public-catalogue-only` command from a controlled Windows CMD shell. Confirm it reports at most 4 categories, 8 products, 20 variants, and 24 images created; investigate any conflict rather than bypassing it.
 - [ ] Rerun the guarded mode only if verification requires it; it must report zero creations. Remove `ALLOW_REMOTE_SEED` and close the controlled shell immediately afterward.
 - [ ] Configure backups and perform a documented restore drill before claiming production readiness.
 - [ ] Confirm connection and pool limits against Vercel concurrency; record the chosen limits.
@@ -48,7 +48,7 @@ Current status: repository preparation is in progress. The owner reports that al
 
 ## Stripe sandbox
 
-- [ ] Create the hosted webhook endpoint for `/api/stripe/webhook` and store its Dashboard endpoint secret. Do not reuse a Stripe CLI listener secret.
+- [x] Create the hosted webhook endpoint for `/api/stripe/webhook` and store its Dashboard endpoint secret. Do not reuse a Stripe CLI listener secret.
 - [ ] Subscribe only to the required event type and confirm valid delivery, signature rejection, duplicate delivery, and delayed different-event idempotency.
 - [ ] Complete one real test Checkout and verify the database, success page, public lookup, admin order page, analytics, inventory movement, and webhook outcome agree.
 - [ ] Verify a redirect without a processed webhook remains pending and is never displayed as paid.
@@ -57,12 +57,13 @@ Current status: repository preparation is in progress. The owner reports that al
 
 ## Browser and platform QA
 
-- [ ] Inspect deployed security headers, HSTS, private/no-store behavior, and noindex policy on admin, checkout, orders, and API surfaces.
+- [x] Inspect deployed security headers, HSTS, private/no-store behavior, and noindex policy on admin, checkout, orders, and API surfaces.
 - [ ] Verify administrative and order-lookup cookies are Secure, HttpOnly where applicable, correctly scoped, and absent from URLs or client-visible payloads.
 - [ ] Test rejected missing and cross-origin requests for order lookup and Checkout Session creation.
 - [ ] Verify spoofed generic forwarding headers do not change the Vercel rate-limit source.
 - [ ] Exercise generic auth and lookup errors, source-wide rate limits, session expiry, direct refreshes, and cross-order isolation without recording PII in screenshots.
-- [ ] Complete the TASK-013 keyboard, screen-reader, reduced-motion, zoom, responsive, and optimized-image checks on the hosted origin.
+- [x] Record the owner-reported 9 October 2026 browser check covering desktop storefront/product navigation, mobile responsiveness, basic keyboard navigation and visible focus, browser zoom and motion preferences, authenticated administrator workflow, and guest order lookup behavior.
+- [ ] Complete formal accessibility verification, including screen-reader behavior and documented conformance evidence.
 - [ ] Verify no source maps, framework disclosure header, raw provider id, secret, full address, email search term, or diagnostic note appears publicly.
 
 ## Observability and response
@@ -86,12 +87,18 @@ Current status: repository preparation is in progress. The owner reports that al
 - [ ] Record CI, deployment-check, migration, header, accessibility, and sandbox payment evidence with all credentials and provider ids redacted.
 - [ ] State limitations plainly: test payments only, lightweight guest verification, manual fulfillment, no carrier tracking, no automated tax/refunds, and no claim of penetration testing or compliance certification.
 
-## External actions needed to continue
+## Remaining external actions
 
 - [x] The owner created the Neon project and securely saved pooled and direct connection strings.
 - [ ] The owner selects the Vercel project and confirms the Neon branch, region, canonical hostname, owners, and rollback contact.
 - [ ] The owner configures sensitive values directly in the provider dashboards without sharing them in chat.
-- [ ] The owner confirms that the reviewed remote migrations may be applied.
-- [ ] The owner separately authorizes the guarded public-catalogue-only bootstrap after confirming target identity and recovery readiness.
-- [ ] After the HTTPS deployment exists, the owner creates the Stripe sandbox webhook destination and configures its unique signing secret in Vercel.
-- [ ] The owner supplies only the public deployment URL for automated read-only QA; no credentials are needed for that check.
+- [x] The owner confirmed and applied the five reviewed remote migrations.
+- [x] The owner separately authorized and completed the guarded public-catalogue-only bootstrap.
+- [x] The owner created the Stripe sandbox webhook destination and configured its unique signing secret in Vercel.
+- [x] The owner supplied only the public deployment URL for automated read-only QA; no credentials were required.
+- [ ] Complete the authenticated role and cookie inspection with supervised fictional accounts.
+- [x] Record owner-reported completion of the agreed browser checklist on 9 October 2026.
+- [ ] Complete formal accessibility verification and retain any resulting evidence without sensitive data.
+- [ ] Review provider logs and configure operational alerts without capturing sensitive values.
+- [ ] Verify backup restoration and a known-good deployment rollback before claiming operational readiness.
+- [ ] Capture and privacy-review the final portfolio screenshot set.

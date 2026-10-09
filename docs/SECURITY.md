@@ -32,7 +32,7 @@ Checkout treats contact, address, cart, and all extra client fields as hostile i
 
 Checkout previews are stateless. Payment initiation persists email and address only as an order snapshot, uses byte-bounded bodies and an exact canonical Origin check, and never logs the request. The existing database limiter is reused with checkout-specific HMAC namespaces for both email/source pairs and a broader source-only ceiling; raw email and source values are not stored. Attempt tokens are also stored only as HMAC digests.
 
-Stripe secret and webhook keys remain server-only. The adapter accepts only `sk_test_` keys, rejects live-mode sessions and events, and does not need the publishable key for hosted Checkout. Metadata contains only internal order linkage. Raw webhook bodies, secrets, card data, and full addresses are never logged. The success route reads database state and clears the browser cart only after verified PAID/PROCESSING state.
+Stripe secret and webhook keys remain server-only. The adapter accepts only `sk_test_` keys, rejects live-mode sessions and events, and does not need the publishable key for hosted Checkout. Metadata contains only internal order linkage. Raw webhook bodies, secrets, card data, full addresses, provider event identifiers, and order references are never logged. Routine webhook logs retain only the event type and allow-listed outcome category. The success route reads database state and clears the browser cart only after verified PAID/PROCESSING state.
 
 ## Guest order lookup
 

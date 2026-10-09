@@ -2,7 +2,7 @@
 
 ## Intended topology
 
-Local development uses Next.js with the PostgreSQL 17 service in `compose.yaml`, exposed on host port 5435. The hosted target is Vercel, the existing Neon PostgreSQL project, and Stripe sandbox. The owner reports that all five reviewed migrations have been applied to Neon. The hosted catalogue bootstrap, deployment URL, and webhook delivery have not been executed or verified from this repository.
+Local development uses Next.js with the PostgreSQL 17 service in `compose.yaml`, exposed on host port 5435. The portfolio sandbox is hosted on Vercel with Neon PostgreSQL and Stripe test mode. The owner reports that all five reviewed migrations and the guarded public catalogue bootstrap were completed. Read-only hosted QA and one signed sandbox payment lifecycle were verified independently. The owner also reports completing the agreed browser checklist on 9 October 2026, covering desktop storefront/product navigation, mobile responsiveness, basic keyboard navigation and visible focus, browser zoom and motion preferences, the authenticated administrator workflow, and guest order lookup behavior. Hosted STAFF/inactive-user verification, production cookie inspection, advanced lookup and webhook edge cases, formal accessibility verification, provider logs and alerts, backup restoration, rollback, and screenshots remain pending in `TASK_015_CHECKLIST.md`.
 
 Likely configuration responsibilities:
 
