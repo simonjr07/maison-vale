@@ -16,6 +16,7 @@
     "test": "vitest run",
     "test:auth:integration": "node --experimental-strip-types scripts/verify-admin-auth.mjs",
     "test:catalogue:integration": "node --experimental-strip-types scripts/verify-catalogue.mjs",
+    "test:catalogue-bootstrap:integration": "node --experimental-strip-types scripts/verify-public-catalogue-bootstrap.mjs",
     "test:inventory:integration": "node --experimental-strip-types scripts/verify-inventory.mjs",
     "test:cart:integration": "node --experimental-strip-types scripts/verify-cart.mjs",
     "test:checkout:integration": "node --experimental-strip-types scripts/verify-checkout.mjs",

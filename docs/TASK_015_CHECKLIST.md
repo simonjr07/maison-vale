@@ -2,7 +2,7 @@
 
 This checklist prepares Maison Vale for a portfolio sandbox deployment. It does not authorize live commerce. Keep Stripe in test mode and capture evidence without exposing credentials, full customer data, provider identifiers, or internal diagnostic text.
 
-Current status: repository preparation is in progress. The Neon project and two connection strings exist, but no connection or write was attempted. No hosted URL, Neon migration, remote catalogue seed, production administrator, Stripe Dashboard destination, hosted payment, browser QA, log review, backup restore, or final screenshot has been verified. Complete account-owned steps in the relevant dashboard; never paste credentials into chat.
+Current status: repository preparation is in progress. The owner reports that all five migrations were applied successfully to the intended Neon database. The guarded public catalogue bootstrap has not been executed. No hosted URL, production administrator, Stripe Dashboard destination, hosted payment, browser QA, log review, backup restore, or final screenshot has been verified. Complete account-owned steps in the relevant dashboard; never paste credentials into chat.
 
 ## Before deployment
 
@@ -21,6 +21,9 @@ Current status: repository preparation is in progress. The Neon project and two 
 - [ ] Use the narrowest practical role grants; reserve schema-changing privileges for controlled migrations when separate roles are available.
 - [ ] Require TLS in both URLs with an approved `sslmode` and confirm certificate behavior for the selected mode.
 - [ ] Run the guarded migration status command, obtain explicit approval, apply the five reviewed migrations once with the guarded deploy command, then verify status again. Do not run the development seed.
+- [ ] Before catalogue bootstrap, reconfirm the pooled and direct URLs target the intended Neon branch/database, verify all five migrations, and record a usable restore point or recovery procedure.
+- [ ] With separate approval, run the documented `--public-catalogue-only` command from a controlled Windows CMD shell. Confirm it reports at most 4 categories, 8 products, 20 variants, and 24 images created; investigate any conflict rather than bypassing it.
+- [ ] Rerun the guarded mode only if verification requires it; it must report zero creations. Remove `ALLOW_REMOTE_SEED` and close the controlled shell immediately afterward.
 - [ ] Configure backups and perform a documented restore drill before claiming production readiness.
 - [ ] Confirm connection and pool limits against Vercel concurrency; record the chosen limits.
 
@@ -41,6 +44,7 @@ Current status: repository preparation is in progress. The Neon project and two 
 - [ ] Verify ADMIN login and STAFF read-only behavior. Confirm inactive accounts lose access after the database recheck.
 - [ ] Schedule `npm run rate-limits:cleanup -- --apply` in an authorized environment. Run the dry mode first and monitor failures.
 - [ ] Keep sandbox reconciliation disabled. If a test event was genuinely missed, use the documented diagnostic first and enable reconciliation only for that controlled operation.
+- [ ] Never place the public catalogue bootstrap in a Vercel build, application startup, CI pipeline, or recurring job. Never substitute ordinary `npm run db:seed`.
 
 ## Stripe sandbox
 
@@ -88,6 +92,6 @@ Current status: repository preparation is in progress. The Neon project and two 
 - [ ] The owner selects the Vercel project and confirms the Neon branch, region, canonical hostname, owners, and rollback contact.
 - [ ] The owner configures sensitive values directly in the provider dashboards without sharing them in chat.
 - [ ] The owner confirms that the reviewed remote migrations may be applied.
-- [ ] The owner separately confirms whether the fictional catalogue seed may run against the empty hosted database.
+- [ ] The owner separately authorizes the guarded public-catalogue-only bootstrap after confirming target identity and recovery readiness.
 - [ ] After the HTTPS deployment exists, the owner creates the Stripe sandbox webhook destination and configures its unique signing secret in Vercel.
 - [ ] The owner supplies only the public deployment URL for automated read-only QA; no credentials are needed for that check.

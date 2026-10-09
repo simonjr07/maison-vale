@@ -2,7 +2,7 @@
 
 ## Intended topology
 
-Local development uses Next.js with the PostgreSQL 17 service in `compose.yaml`, exposed on host port 5435. The hosted target is Vercel, the existing Neon PostgreSQL project, and Stripe sandbox. The Neon project and connection strings exist, but no hosted connection, migration, deployment URL, or webhook delivery has been verified.
+Local development uses Next.js with the PostgreSQL 17 service in `compose.yaml`, exposed on host port 5435. The hosted target is Vercel, the existing Neon PostgreSQL project, and Stripe sandbox. The owner reports that all five reviewed migrations have been applied to Neon. The hosted catalogue bootstrap, deployment URL, and webhook delivery have not been executed or verified from this repository.
 
 Likely configuration responsibilities:
 
@@ -29,7 +29,7 @@ Run `npm run deployment:check` in the Vercel runtime environment before a releas
 
 `DIRECT_URL` uses the matching unpooled Neon URL for reviewed Prisma CLI operations. Its hostname has the same endpoint identity without the `-pooler` suffix and must retain its TLS parameters. Prisma 7 reads this value through `datasource.url` in `prisma.config.ts`. The Vercel build does not need `DIRECT_URL`: client generation uses a deliberately unreachable fallback, while any database-accessing Prisma command fails closed unless the operator supplies `DIRECT_URL`.
 
-Use the narrowest practical Neon role grants. The runtime role needs only the table and sequence access required by normal application reads and writes; a migration role may hold schema-changing privileges when separate credentials are available. Regardless of whether Neon issued the same role in both saved URLs, the unpooled migration credential must not be exposed to the Vercel web runtime. Each production function limits its application-side `pg` pool to one connection, while Neon's pooled endpoint handles server-side transaction pooling. Never run the development seed against production; the seed command refuses production and requires `ALLOW_REMOTE_SEED=true` for any non-local development database.
+Use the narrowest practical Neon role grants. The runtime role needs only the table and sequence access required by normal application reads and writes; a migration role may hold schema-changing privileges when separate credentials are available. Regardless of whether Neon issued the same role in both saved URLs, the unpooled migration credential must not be exposed to the Vercel web runtime. Each production function limits its application-side `pg` pool to one connection, while Neon's pooled endpoint handles server-side transaction pooling. Never run the ordinary development seed against a remote database; it is now local-only even when `ALLOW_REMOTE_SEED=true` is present.
 
 Catalogue management requires no new environment values or storage service. Product images are selected from reviewed, optimized files deployed under `public/catalogue/photography`; adding or replacing an asset requires code review, an update to the asset manifest and admin allow-list, and an idempotent seed run. Confirm ADMIN and STAFF role assignments before hosted QA because STAFF access is intentionally read-only. Production should set `APP_URL` to the canonical HTTPS origin so absolute social metadata resolves correctly.
 
@@ -83,10 +83,26 @@ These steps require the database owner and explicit approval before any remote w
 5. Run `npm run deployment:migrations:status` and review its redacted output. The wrapper repeats the fail-closed checks before invoking Prisma. Prisma 7 obtains the migration target from `DIRECT_URL` through `prisma.config.ts`; stop if the database identity or status is unexpected.
 6. After explicit approval for the five reviewed migrations, run `npm run deployment:migrations:deploy`. Do not use `migrate dev`, `db push`, reset, or seed. The guarded command applies tracked migrations without resetting data.
 7. Run `npm run deployment:migrations:status` again and verify that all five migrations are applied. Inspect only the expected schema and empty-table state; do not fabricate orders, payments, refunds, webhook rows, inventory movements, or analytics.
-8. If the fictional catalogue is required, obtain separate approval for the exact remote seed operation. The current production guard intentionally blocks unattended production seeding; do not bypass it casually.
+8. If the fictional catalogue is required, follow the guarded public catalogue bootstrap procedure below. Never use ordinary `npm run db:seed` against Neon.
 9. Provision one administrator through the controlled command only after migrations. Remove provisioning variables and the temporary gate immediately afterward.
 
 Neon identifies pooled connections with `-pooler` in the hostname and supports prepared statements through its current PgBouncer configuration; Prisma does not require `pgbouncer=true` for this endpoint. Maison Vale still uses the separate direct URL for controlled migrations to keep runtime and schema-change credentials operationally separate. Backup availability, restore windows, scale-to-zero behavior, and point-in-time recovery depend on the selected Neon plan and settings; record the actual configuration and do not claim a restore test until one succeeds.
+
+### Guarded public catalogue bootstrap
+
+The one-off `--public-catalogue-only` mode is the only seed path permitted for Neon. Before creating a Prisma client, it requires `ALLOW_REMOTE_SEED=true`, rejects Vercel runtime execution, requires the private repository-root `.env.neon.local` file, and validates both connection strings. `DATABASE_URL` must be the TLS-protected Neon pooled endpoint, while `DIRECT_URL` must be the matching TLS-protected direct endpoint for the same endpoint identity and database. Neither value is printed. The bootstrap writes through `DATABASE_URL`; `DIRECT_URL` is required only as an independent target-identity check.
+
+The private `.env.neon.local` file must contain only the saved `DATABASE_URL` and `DIRECT_URL` values needed for this operation and must remain ignored. From Windows CMD at the repository root, use this exact command only after explicit approval:
+
+```cmd
+set "DATABASE_URL=" && set "DIRECT_URL=" && set "DOTENV_CONFIG_PATH=.env.neon.local" && set "ALLOW_REMOTE_SEED=true" && node --env-file=.env.neon.local --experimental-strip-types prisma\seed.mjs --public-catalogue-only
+```
+
+Clearing inherited URL variables prevents Node's environment-file precedence from silently selecting another database. `--env-file` fails if the private file is missing, and `DOTENV_CONFIG_PATH` prevents `dotenv/config` from loading the ordinary `.env`. The application guard then rejects local Docker, non-Neon, non-TLS, pooled/direct role reversal, and mismatched endpoint or database targets before opening a connection.
+
+The bootstrap validates the fixed definitions, acquires a transaction-scoped PostgreSQL advisory lock, completes a read-only collision preflight, and creates only missing rows in one transaction. Its complete target is 4 categories, 8 public products, 20 variants, and 24 image references. It never creates StoreSettings, Archive Sample Shirt, Retired Sample Object, or other development fixtures. Existing matching rows are not updated, including edited names, descriptions, status, prices, inventory, and image metadata. Product/category ownership, SKU ownership, image URL ownership, and image positions must match; otherwise the transaction stops with a redacted conflict message. A completed rerun creates zero rows.
+
+Before approval, confirm the five migrations, intended branch/database, role grants, and a usable Neon restore point or recovery procedure. A failed transaction rolls itself back. A successful additive bootstrap has no automated application-level undo; do not delete catalogue or commerce rows to simulate rollback. If the wrong valid target was selected, stop application writes, preserve evidence, and use the reviewed Neon restore or forward-fix procedure. Unset `ALLOW_REMOTE_SEED` and close the controlled shell immediately after the operation. Do not place this command in Vercel builds, CI, startup hooks, or recurring jobs.
 
 ## Stripe hosted webhook
 
