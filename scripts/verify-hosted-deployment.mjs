@@ -1,4 +1,5 @@
 import { CATALOGUE_IMAGE_ASSETS } from "../src/catalogue/image-assets.ts";
+import { inspectUnauthenticatedAdminResponse } from "../src/operations/hosted-admin-boundary.ts";
 
 const argument = process.argv.find((value) => value.startsWith("--url="));
 const configuredUrl = argument?.slice("--url=".length) || process.env.HOSTED_QA_URL;
@@ -38,8 +39,16 @@ for (const path of ["/cart", "/checkout", "/orders"]) {
 }
 
 const admin = await request("/admin");
-verify([302, 303, 307, 308].includes(admin.status), `Unauthenticated /admin returned HTTP ${admin.status} instead of redirecting.`);
-verify(new URL(admin.headers.get("location"), origin).pathname === "/admin/login", "Unauthenticated /admin did not redirect to login.");
+const adminBody = await admin.text();
+const adminBoundary = inspectUnauthenticatedAdminResponse({
+  status: admin.status,
+  location: admin.headers.get("location"),
+  contentType: admin.headers.get("content-type"),
+  cacheControl: admin.headers.get("cache-control"),
+  body: adminBody,
+  origin,
+});
+verify(adminBoundary.secure, adminBoundary.secure ? "" : adminBoundary.reason);
 verify(admin.headers.get("x-robots-tag")?.includes("noindex"), "Admin response is missing noindex.");
 
 const robots = await request("/robots.txt");
@@ -82,5 +91,5 @@ for (const path of ["/api/orders/lookup", "/api/stripe/checkout-session"]) {
   verify(response.status === 403, `${path} did not reject a request without an Origin header.`);
 }
 
-console.log(`Hosted read-only QA passed for ${origin}: public routes, indexing boundaries, security headers, images, admin redirect, and missing-Origin rejection.`);
+console.log(`Hosted read-only QA passed for ${origin}: public routes, indexing boundaries, security headers, images, admin access boundary, and missing-Origin rejection.`);
 console.log("Stripe Checkout, webhook delivery, authenticated admin behavior, cookies, logs, accessibility, and responsive presentation still require manual QA.");

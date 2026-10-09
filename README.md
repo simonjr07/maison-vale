@@ -115,7 +115,7 @@ npm run deployment:assets
 npm run qa:hosted -- --url=https://your-verified-host.example
 ```
 
-The hosted QA command is read-only. It verifies public routes, indexing boundaries, response security headers, all 25 optimized images, the unauthenticated admin redirect, and missing-Origin rejection. Stripe Checkout, authenticated administration, secure cookies, logs, accessibility, backups, and responsive presentation still require manual evidence.
+The hosted QA command is read-only. It verifies public routes, indexing boundaries, response security headers, all 25 optimized images, the unauthenticated admin access boundary, and missing-Origin rejection. The admin check accepts either a conventional same-origin HTTP redirect or Next.js's private, no-store streamed redirect to the login page; it rejects an ordinary HTTP 200 page, an external destination, and protected admin content. Stripe Checkout, authenticated administration, secure cookies, logs, accessibility, backups, and responsive presentation still require manual evidence.
 
 Follow [`docs/TASK_015_CHECKLIST.md`](./docs/TASK_015_CHECKLIST.md) before adding a live URL. Never paste production or sandbox credentials into an issue, pull request, screenshot, or chat.
 

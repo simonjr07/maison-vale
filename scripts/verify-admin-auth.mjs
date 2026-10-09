@@ -5,6 +5,7 @@ import { randomBytes } from "node:crypto";
 
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client.ts";
+import { inspectUnauthenticatedAdminResponse } from "../src/operations/hosted-admin-boundary.ts";
 import { hashPassword } from "../src/server/auth/password.ts";
 
 const baseUrl = process.env.AUTH_TEST_BASE_URL ?? "http://localhost:3000";
@@ -64,16 +65,16 @@ async function credentialSignIn(candidatePassword) {
 }
 
 async function assertRedirectedToLogin(response) {
-  if ([302, 303, 307, 308].includes(response.status)) {
-    assert.equal(new URL(response.headers.get("location"), baseUrl).pathname, "/admin/login");
-    return;
-  }
-
-  assert.equal(response.status, 200);
   const body = await response.text();
-  if (/The operations foundation is ready/i.test(body) || !/\/admin\/login/.test(body)) {
-    throw new Error(`Expected protected access to resolve to login; received status ${response.status} without a login redirect marker.`);
-  }
+  const result = inspectUnauthenticatedAdminResponse({
+    status: response.status,
+    location: response.headers.get("location"),
+    contentType: response.headers.get("content-type"),
+    cacheControl: response.headers.get("cache-control"),
+    body,
+    origin: new URL(baseUrl).origin,
+  });
+  assert.equal(result.secure, true, result.secure ? undefined : result.reason);
 }
 
 async function main() {

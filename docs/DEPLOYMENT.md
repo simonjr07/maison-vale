@@ -127,7 +127,7 @@ After deployment, run:
 npm run qa:hosted -- --url=https://HOST
 ```
 
-The command verifies public routes, robots and sitemap boundaries, production headers, unauthenticated admin redirection, all 25 optimized image assets, and rejection of missing-Origin requests. It performs no login, checkout, payment, order lookup, mutation, migration, seed, or reconciliation. Complete the remaining manual checks in the TASK-015 checklist.
+The command verifies public routes, robots and sitemap boundaries, production headers, the unauthenticated admin access boundary, all 25 optimized image assets, and rejection of missing-Origin requests. Next.js may represent a Server Component redirect as either an HTTP redirect or a private, no-store HTTP 200 stream containing a framework redirect control record; the check validates both forms and rejects protected admin content. It performs no login, checkout, payment, order lookup, mutation, migration, seed, or reconciliation. Complete the remaining manual checks in the TASK-015 checklist.
 
 ## Primary platform references
 
