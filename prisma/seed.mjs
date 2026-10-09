@@ -28,7 +28,10 @@ if (publicCatalogueOnly) {
   });
 }
 
-const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
+const adapterConfig = publicCatalogueOnly
+  ? { connectionString, max: 1, connectionTimeoutMillis: 30_000, idleTimeoutMillis: 10_000 }
+  : { connectionString };
+const prisma = new PrismaClient({ adapter: new PrismaPg(adapterConfig) });
 
 async function runDevelopmentSeed() {
   await prisma.storeSettings.upsert({
