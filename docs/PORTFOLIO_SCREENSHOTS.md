@@ -1,34 +1,32 @@
-# Maison Vale portfolio screenshot plan
+# Maison Vale portfolio screenshot register
 
-No screenshot in this plan is evidence until it has been captured from the verified deployment, reviewed at full resolution, and entered in the capture register. Do not publish administrator credentials, customer email, full address, order reference, Stripe identifiers, database details, browser storage, logs, or internal diagnostic notes.
+Nine supplied screenshots from the deployed portfolio sandbox have passed the publication privacy review and are stored in `docs/screenshots/`. One requested category remains missing and is not referenced from public documentation. Do not publish administrator credentials, customer email, full address, order reference, Stripe identifiers, database details, browser storage, logs, or internal diagnostic notes.
 
 ## Capture standards
 
-- Desktop: 1440 × 1000 CSS pixels at 100% zoom.
-- Mobile: 390 × 844 CSS pixels at 100% zoom; add a 320 px QA capture when checking minimum-width behavior.
-- Prefer WebP for the public portfolio and retain original PNG captures privately.
+- The accepted desktop captures retain their supplied 1920 × 1080 PNG dimensions.
+- The accepted mobile homepage retains its supplied 388 × 775 PNG dimensions.
+- Future replacement captures should use a consistent desktop or mobile viewport and retain an original PNG for review.
 - Keep the interface authentic. Cropping and resizing are acceptable; adding products, orders, metrics, success states, or test results in an editor is not.
 - Use fictional, non-reusable data and redact from a copy when a real sandbox record is required.
 - Capture visible focus only when documenting keyboard behavior. Keep browser extensions, unrelated tabs, account avatars, and desktop notifications out of frame.
 
-## Recommended public gallery
+## Supplied screenshot disposition
 
-| Filename | Route and state | Viewport | What it demonstrates |
-|---|---|---:|---|
-| `01-maison-vale-home-desktop.webp` | `/` editorial opening | Desktop | Brand direction, navigation, hero hierarchy, and primary action |
-| `02-maison-vale-shop-desktop.webp` | `/shop` with collection controls and first product row | Desktop | Catalogue structure, responsive controls, and product presentation |
-| `03-maison-vale-product-desktop.webp` | A multi-colour product with an available variant | Desktop | Gallery, variant selection, price, stock message, and add-to-bag action |
-| `04-maison-vale-product-added-mobile.webp` | Product detail after adding one item | Mobile | Touch layout, live confirmation, and the View bag action |
-| `05-maison-vale-cart-desktop.webp` | `/cart` with two fictional items | Desktop | Quantity controls, authoritative summary, and checkout path |
-| `06-maison-vale-checkout-mobile.webp` | `/checkout` before payment submission | Mobile | Guest form, labels, summary, validation design, and sandbox context |
-| `07-maison-vale-order-lookup-desktop.webp` | `/orders` empty form | Desktop | Privacy explanation and lightweight guest verification flow |
-| `08-maison-vale-order-details-desktop.webp` | Authorized fictional sandbox order | Desktop | Recorded items, masked destination, truthful payment and fulfillment states |
-| `09-maison-vale-admin-analytics-desktop.webp` | `/admin` with sanitized sandbox data | Desktop | KPI definitions, trend, variant ranking, and stock alerts |
-| `10-maison-vale-admin-catalogue-desktop.webp` | `/admin/products` or a product detail | Desktop | Searchable catalogue and role-aware operational UI |
-| `11-maison-vale-admin-inventory-desktop.webp` | `/admin/inventory` | Desktop | Current stock, adjustment workflow, and movement history |
-| `12-maison-vale-admin-order-desktop.webp` | One sanitized admin order detail | Desktop | Verified payment state, fulfillment controls, and status history |
+| Requested filename | Status | Content and review result |
+|---|---|---|
+| `01-homepage-desktop.png` | Integrated | Desktop editorial homepage; privacy review passed |
+| `02-homepage-mobile.png` | Integrated | Mobile editorial homepage; privacy review passed |
+| `03-product-catalogue.png` | Stored | Public catalogue grid; privacy review passed |
+| `04-product-details.png` | Integrated | Vale Carryall details, variants, stock, and add-to-bag action; privacy review passed |
+| `05-shopping-cart.png` | Integrated | Guest shopping bag and checkout action; privacy review passed |
+| `06-checkout.png` | Integrated | Stripe sandbox Checkout; customer email is covered by an irreversible opaque publication redaction |
+| `07-order-confirmation.png` | Missing | The supplied order-related image is the guest lookup form, not an order-confirmation screen; it was not renamed or published |
+| `08-admin-dashboard.png` | Integrated | Administrative analytics; administrator email is covered by an irreversible opaque publication redaction |
+| `09-admin-products.png` | Integrated | Administrative product catalogue; privacy review passed |
+| `10-admin-inventory.png` | Stored | Administrative inventory; administrator email is covered by an irreversible opaque publication redaction |
 
-For the public order screenshot, mask the complete order reference in the published image even though the public DTO already masks the destination. For administrator screenshots, use a sanitized fictional record and remove email, full address, internal UUIDs, provider identifiers, and diagnostic details from the publication copy.
+One additional mobile product-detail image was supplied. It was not copied because the desktop product detail already fills the requested category and retaining both would add an unnecessary duplicate.
 
 ## Private evidence captures
 
@@ -45,11 +43,11 @@ Keep these outside the public gallery and redact identifiers before sharing with
 
 ## Placement
 
-- README: use the home desktop image after the introduction and a compact row of product, cart, and analytics images after the capabilities section only after captures exist.
-- `docs/PORTFOLIO_CASE_STUDY.md`: place storefront imagery after “Solution,” the order-details image after “Privacy and security model,” and the sanitized analytics image before “Demonstrated results.”
+- README: the desktop homepage leads the project, followed by a compact selection covering product details, the bag, sandbox checkout, and administrative analytics.
+- `docs/PORTFOLIO_CASE_STUDY.md`: selected storefront, product, bag, checkout, and analytics captures support the corresponding engineering narrative.
 - External portfolio: lead with the home image, then product, checkout, order, and administration. Keep technical evidence in a separate process or engineering section.
 
-Do not add Markdown image references until the corresponding files exist. Missing-image placeholders can be mistaken for verified evidence.
+Do not add a Markdown image reference for `07-order-confirmation.png` until an authentic confirmation capture exists. Missing-image placeholders can be mistaken for verified evidence.
 
 ## Capture QA
 
@@ -63,6 +61,14 @@ Do not add Markdown image references until the corresponding files exist. Missin
 
 ## Capture register
 
-| Filename | Environment | Route/state | Revision | Date | Privacy review |
-|---|---|---|---|---|---|
-| Not captured | — | — | — | — | Pending |
+| Filename | Dimensions | Environment and state | Revision/date | Privacy review |
+|---|---:|---|---|---|
+| `01-homepage-desktop.png` | 1920 × 1080 | Deployed sandbox, desktop homepage | Not supplied | Passed |
+| `02-homepage-mobile.png` | 388 × 775 | Deployed sandbox, mobile homepage | Not supplied | Passed |
+| `03-product-catalogue.png` | 1920 × 1080 | Deployed sandbox, public catalogue | Not supplied | Passed |
+| `04-product-details.png` | 1920 × 1080 | Deployed sandbox, Vale Carryall details | Not supplied | Passed |
+| `05-shopping-cart.png` | 1920 × 1080 | Deployed sandbox, guest bag | Not supplied | Passed |
+| `06-checkout.png` | 1920 × 1080 | Stripe-hosted sandbox Checkout | Not supplied | Passed after opaque email redaction |
+| `08-admin-dashboard.png` | 1920 × 1080 | Deployed sandbox, administrative analytics | Not supplied | Passed after opaque email redaction |
+| `09-admin-products.png` | 1920 × 1080 | Deployed sandbox, administrative catalogue | Not supplied | Passed |
+| `10-admin-inventory.png` | 1920 × 1080 | Deployed sandbox, administrative inventory | Not supplied | Passed after opaque email redaction |

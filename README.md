@@ -6,6 +6,8 @@ Maison Vale is a fictional premium fashion and lifestyle commerce application bu
 
 The deployment uses Stripe test mode only. It cannot accept real payments, and no commercial performance, customer, revenue, or conversion claims are implied.
 
+![Maison Vale desktop storefront with editorial copy and catalogue navigation](docs/screenshots/01-homepage-desktop.png)
+
 ## Business purpose
 
 The project demonstrates how a polished storefront can preserve server authority when prices, stock, payment state, customer information, and staff permissions are involved. The browser provides interaction and presentation; validated server boundaries, PostgreSQL transactions, and signed webhooks establish business truth.
@@ -39,6 +41,16 @@ The project demonstrates how a polished storefront can preserve server authority
 - HMAC-keyed database rate limits, canonical Origin checks, and byte-bounded request bodies
 - Private/no-store policies for administrative, checkout, order, and API surfaces
 - Guarded migration, catalogue-bootstrap, reconciliation, and administrator-provisioning scripts
+
+## Selected interface
+
+| Product selection | Stripe sandbox checkout |
+|---|---|
+| ![Vale Carryall product details with variant and stock selection](docs/screenshots/04-product-details.png) | ![Stripe sandbox Checkout with private customer information redacted](docs/screenshots/06-checkout.png) |
+| **Shopping bag** | **Administrative analytics** |
+| ![Shopping bag with server-refreshed pricing and checkout action](docs/screenshots/05-shopping-cart.png) | ![Administrator analytics dashboard with private account information redacted](docs/screenshots/08-admin-dashboard.png) |
+
+Additional reviewed captures and the privacy-aware publication register are documented in the [portfolio screenshot plan](./docs/PORTFOLIO_SCREENSHOTS.md).
 
 ## Technology
 

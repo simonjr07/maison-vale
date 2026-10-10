@@ -18,6 +18,10 @@ The storefront supports catalogue browsing, product variants, a persistent guest
 
 The administrative workspace supports catalogue and inventory operations, order fulfillment, and analytics. Active ADMIN and STAFF users are revalidated against PostgreSQL on protected requests. Read access is explicitly shared where appropriate; catalogue, inventory, and fulfillment mutations independently require ADMIN authority.
 
+![Maison Vale desktop homepage showing the editorial storefront](screenshots/01-homepage-desktop.png)
+
+*The deployed storefront combines restrained editorial presentation with direct catalogue navigation.*
+
 ## Key functionality
 
 - Eight fictional products in four collections with variant-aware galleries and stock states
@@ -29,6 +33,10 @@ The administrative workspace supports catalogue and inventory operations, order 
 - Searchable catalogue and order administration with role boundaries
 - Read-only analytics based on persisted payment, refund, order-item, and stock records
 - Vercel deployment with a Neon pooled runtime connection and guarded operational scripts
+
+![Vale Carryall product page with current price, variant options, stock messaging, quantity, and add-to-bag action](screenshots/04-product-details.png)
+
+*Product pages present variant-specific availability while checkout remains the authority for final stock validation.*
 
 ## Architecture
 
@@ -51,6 +59,14 @@ Checkout stores a pending order, item snapshots, and payment before redirecting 
 Successful finalization claims the payment transition and, in one transaction, decrements all purchased variants, records movement history, advances the order from pending to processing, and records the webhook outcome. Duplicate and concurrent events cannot repeat those effects.
 
 The design deliberately avoids inventory reservation. If payment succeeds after stock becomes unavailable, inventory work rolls back, payment remains recorded as paid, and the order enters a manual-review exception instead of presenting a false failure or partially decrementing stock.
+
+![Maison Vale shopping bag with refreshed catalogue pricing, quantity controls, and checkout summary](screenshots/05-shopping-cart.png)
+
+*The guest bag keeps interaction lightweight while making clear that price and availability are checked again at checkout.*
+
+![Stripe sandbox Checkout with the customer email removed from the publication copy](screenshots/06-checkout.png)
+
+*Payment details are collected on Stripe-hosted Checkout in test mode; the browser return remains navigation rather than proof of payment.*
 
 ## Privacy and security model
 
@@ -77,6 +93,10 @@ Email plus reference offers useful guest access without customer accounts, but i
 ### Deploying safely
 
 The hosted application uses Neon's pooled endpoint at runtime while controlled migrations use a separate direct connection. Builds never migrate or seed. Remote catalogue bootstrap, reconciliation, and administrator provisioning each require explicit purpose-specific gates.
+
+![Maison Vale administrative analytics with private account information removed from the publication copy](screenshots/08-admin-dashboard.png)
+
+*The protected operations workspace derives clearly labelled sandbox analytics from persisted commerce records.*
 
 ## Demonstrated results
 
@@ -105,7 +125,7 @@ The owner reports completing the agreed browser checklist on 9 October 2026, cov
 - No automated refund, cancellation/restock, carrier, or tracking workflow.
 - No customer accounts, administrator MFA, password recovery, or transactional email verification.
 - Fulfillment transitions are manual operational records, not carrier-confirmed events.
-- Monitoring, backup restoration, rollback drills, and final screenshot evidence remain outstanding.
+- Monitoring, backup restoration, and rollback drills remain outstanding. Nine privacy-reviewed portfolio screenshots are available; an authentic order-confirmation capture is still missing.
 - No penetration test or compliance certification has been performed.
 
 ## Portfolio relevance
